@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
+  Home,
   LayoutDashboard,
   Users,
   TrendingUp,
@@ -7,86 +8,110 @@ import {
   Calculator,
   Sparkles,
   FileText,
-  Building2,
   Settings,
+  Search,
+  Bell,
+  Inbox,
+  Grid3x3,
 } from "lucide-react";
 import type { ReactNode } from "react";
 
 type NavItem = { to: string; label: string; icon: typeof Users; exact?: boolean };
 const NAV: NavItem[] = [
-  { to: "/", label: "Executive Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/workforce", label: "Workforce Explorer", icon: Users },
-  { to: "/planning", label: "Workforce Planning", icon: TrendingUp },
-  { to: "/workflow", label: "Worker Data Change", icon: GitBranch },
-  { to: "/payroll", label: "Payroll Preview", icon: Calculator },
+  { to: "/", label: "Home", icon: Home, exact: true },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/workforce", label: "Workforce", icon: Users },
+  { to: "/planning", label: "Planning", icon: TrendingUp },
+  { to: "/workflow", label: "Worker Changes", icon: GitBranch },
+  { to: "/payroll", label: "Payroll", icon: Calculator },
   { to: "/insights", label: "AI Insights", icon: Sparkles },
   { to: "/setup", label: "Foundation Data", icon: Settings },
-  { to: "/about", label: "About This Prototype", icon: FileText },
+  { to: "/about", label: "About", icon: FileText },
 ];
 
 export function AppShell({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
-    <div className="min-h-screen flex w-full bg-muted/30">
-      <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-border bg-card">
-        <div className="px-5 h-16 flex items-center gap-2 border-b border-border">
-          <div className="h-8 w-8 rounded-md bg-primary text-primary-foreground flex items-center justify-center">
-            <Building2 className="h-4 w-4" />
-          </div>
-          <div>
-            <div className="text-sm font-semibold leading-tight">NeoCloud</div>
-            <div className="text-xs text-muted-foreground leading-tight">PeopleOS</div>
-          </div>
-        </div>
-        <nav className="flex-1 px-2 py-3 space-y-0.5">
-          {NAV.map((item) => {
-            const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.to}
-                to={item.to as never}
-                className={[
-                  "flex items-center gap-2.5 rounded-md px-3 py-2 text-sm",
-                  active
-                    ? "bg-accent text-accent-foreground font-medium"
-                    : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
-                ].join(" ")}
-              >
-                <Icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="px-4 py-3 border-t border-border text-xs text-muted-foreground">
-          <div className="font-medium text-foreground">Tenant</div>
-          <div>NeoCloud Inc. · Prod (Preview)</div>
-          <div className="mt-1">Period: Jun 1–15, 2026</div>
-        </div>
-      </aside>
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 border-b border-border bg-card px-6 flex items-center justify-between">
-          <div>
-            <div className="text-xs text-muted-foreground uppercase tracking-wide">{subtitle ?? "People Operations"}</div>
-            <h1 className="text-lg font-semibold leading-tight">{title}</h1>
-          </div>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="hidden sm:inline">Signed in as</span>
-            <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-full bg-muted text-foreground flex items-center justify-center text-xs font-medium">JM</div>
-              <div className="hidden sm:block">
-                <div className="text-foreground font-medium leading-tight">Jordan Mehta</div>
-                <div className="leading-tight">VP, People Operations</div>
-              </div>
+    <div className="min-h-screen flex flex-col w-full bg-muted/40">
+      {/* Workday-style global brand bar */}
+      <header
+        className="h-14 shrink-0 flex items-center justify-between px-5 text-white"
+        style={{ background: "linear-gradient(180deg, var(--wd-navy) 0%, var(--wd-navy-deep) 100%)" }}
+      >
+        <div className="flex items-center gap-6">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div
+              className="h-8 w-8 rounded-md flex items-center justify-center font-bold text-sm"
+              style={{ background: "var(--wd-orange)", color: "white" }}
+            >
+              N
             </div>
+            <div className="leading-tight">
+              <div className="text-[15px] font-semibold tracking-tight">NeoCloud</div>
+              <div className="text-[10px] uppercase tracking-[0.14em] text-white/60">PeopleOS</div>
+            </div>
+          </Link>
+          <nav className="hidden lg:flex items-center gap-1">
+            {NAV.map((item) => {
+              const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to as never}
+                  className={[
+                    "px-3 py-1.5 rounded text-[13px] transition-colors",
+                    active
+                      ? "bg-white/15 text-white font-medium"
+                      : "text-white/70 hover:bg-white/10 hover:text-white",
+                  ].join(" ")}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2 bg-white/10 hover:bg-white/15 rounded-md px-3 h-9 w-72 transition-colors">
+            <Search className="h-4 w-4 text-white/70" />
+            <input
+              placeholder="Search workers, tasks, reports…"
+              className="bg-transparent text-sm placeholder:text-white/50 outline-none flex-1"
+            />
           </div>
-        </header>
-        <main className="flex-1 overflow-auto">
-          <div className="max-w-[1400px] mx-auto px-6 py-6">{children}</div>
-        </main>
+          <button className="h-9 w-9 rounded-md flex items-center justify-center hover:bg-white/10" aria-label="Apps">
+            <Grid3x3 className="h-4 w-4" />
+          </button>
+          <button className="h-9 w-9 rounded-md flex items-center justify-center hover:bg-white/10 relative" aria-label="Inbox">
+            <Inbox className="h-4 w-4" />
+            <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full" style={{ background: "var(--wd-orange)" }} />
+          </button>
+          <button className="h-9 w-9 rounded-md flex items-center justify-center hover:bg-white/10" aria-label="Notifications">
+            <Bell className="h-4 w-4" />
+          </button>
+          <div className="h-8 w-8 rounded-full bg-white/20 text-white flex items-center justify-center text-xs font-semibold ml-1">
+            JM
+          </div>
+        </div>
+      </header>
+
+      {/* Sub-header with page title + breadcrumb */}
+      <div className="border-b border-border bg-card px-6 h-14 flex items-center justify-between">
+        <div>
+          <div className="text-[11px] text-muted-foreground uppercase tracking-[0.12em]">{subtitle ?? "People Operations"}</div>
+          <h1 className="text-[17px] font-semibold leading-tight text-foreground">{title}</h1>
+        </div>
+        <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground">
+          <span>NeoCloud Inc.</span>
+          <span className="text-border">·</span>
+          <span>Period: Jun 1–15, 2026</span>
+        </div>
       </div>
+
+      <main className="flex-1 overflow-auto">
+        <div className="max-w-[1400px] mx-auto px-6 py-6">{children}</div>
+      </main>
     </div>
   );
 }

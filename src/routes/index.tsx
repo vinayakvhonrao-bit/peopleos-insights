@@ -1,146 +1,188 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { AppShell, KpiCard, SectionCard } from "@/components/layout/AppShell";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { AppShell } from "@/components/layout/AppShell";
 import {
-  EMPLOYEES, DEPARTMENTS, LOCATION_LIST, LEVEL_LIST, PAYROLL, SCENARIOS,
-  monthlyRunRate, fmtUSD, fmtNum, computeScenario,
-} from "@/lib/data";
-import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
-  LineChart, Line, PieChart, Pie, Cell, Legend,
-} from "recharts";
+  LayoutDashboard,
+  Users,
+  TrendingUp,
+  GitBranch,
+  Calculator,
+  Sparkles,
+  Settings,
+  FileText,
+  Inbox,
+  CheckCircle2,
+  Clock,
+  ArrowUpRight,
+} from "lucide-react";
+import { EMPLOYEES, PAYROLL, monthlyRunRate, fmtUSD, fmtNum } from "@/lib/data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Executive Dashboard — NeoCloud PeopleOS" },
-      { name: "description", content: "People Ops, headcount and payroll summary for NeoCloud Inc. IPO readiness." },
+      { title: "Home — NeoCloud PeopleOS" },
+      { name: "description", content: "Your workday at NeoCloud. Quick access to people, payroll, planning, and approvals." },
     ],
   }),
-  component: Dashboard,
+  component: HomePage,
 });
 
-const CHART_COLORS = ["#1e3a5f", "#3b82a3", "#7aa6c2", "#bcd2e0", "#cf8a3a", "#8a5a3b"];
+type Worklet = {
+  to: string;
+  label: string;
+  icon: typeof Users;
+  color: string; // css var
+  description: string;
+};
 
-function Dashboard() {
+const WORKLETS: Worklet[] = [
+  { to: "/dashboard", label: "Executive Dashboard", icon: LayoutDashboard, color: "var(--wd-blue)", description: "Headcount, payroll & IPO readiness" },
+  { to: "/workforce", label: "Workforce Explorer", icon: Users, color: "var(--wd-teal)", description: "Browse and filter all workers" },
+  { to: "/planning", label: "Workforce Planning", icon: TrendingUp, color: "var(--wd-green)", description: "Scenarios & 12-month projections" },
+  { to: "/workflow", label: "Worker Data Change", icon: GitBranch, color: "var(--wd-orange)", description: "Business processes & approvals" },
+  { to: "/payroll", label: "Payroll Preview", icon: Calculator, color: "var(--wd-purple)", description: "Run preview & anomaly review" },
+  { to: "/insights", label: "AI Insights", icon: Sparkles, color: "var(--wd-pink)", description: "Trends, risks & recommendations" },
+  { to: "/setup", label: "Foundation Data", icon: Settings, color: "var(--wd-navy)", description: "Org, jobs, locations, levels" },
+  { to: "/about", label: "About This Prototype", icon: FileText, color: "oklch(0.55 0.04 250)", description: "Architecture & data model" },
+];
+
+function HomePage() {
   const active = EMPLOYEES.filter((e) => e.status === "Active").length;
-  const total = EMPLOYEES.length;
-  const intl = EMPLOYEES.filter((e) => ["Toronto","London","Bangalore"].includes(e.location)).length;
-  const intlPct = (intl / total) * 100;
   const anomalies = PAYROLL.filter((r) => r.anomaly).length;
   const runRate = monthlyRunRate();
 
-  const byDept = DEPARTMENTS.map((d) => ({
-    name: d,
-    headcount: EMPLOYEES.filter((e) => e.department === d).length,
-  }));
-  const byLoc = LOCATION_LIST.map((l) => ({
-    name: l,
-    headcount: EMPLOYEES.filter((e) => e.location === l).length,
-  }));
-  const byLevel = LEVEL_LIST.map((lv) => ({
-    name: lv,
-    headcount: EMPLOYEES.filter((e) => e.level === lv).length,
-  }));
-  const payrollByDept = DEPARTMENTS.map((d) => ({
-    name: d,
-    cost: PAYROLL.filter((r) => r.department === d).reduce((s, r) => s + r.totalBurdened, 0) * 2,
-  }));
+  const announcements = [
+    { tag: "Comp", title: "FY26 merit cycle planning kickoff", date: "Jun 18" },
+    { tag: "Payroll", title: "International payroll cutover window", date: "Jun 22" },
+    { tag: "IPO", title: "SOX walkthrough — People controls", date: "Jun 30" },
+  ];
 
-  const conservative = computeScenario(SCENARIOS[0]);
+  const tasks = [
+    { icon: Clock, label: "Approve: Ava Chen — Job Change to IC5", who: "Awaiting your decision", status: "pending" as const },
+    { icon: Clock, label: "Approve: Marcus Lee — Comp change +12%", who: "Awaiting your decision", status: "pending" as const },
+    { icon: CheckCircle2, label: "Reviewed: Q2 headcount plan v3", who: "Completed yesterday", status: "done" as const },
+  ];
 
   return (
-    <AppShell title="Executive Dashboard" subtitle="People Operations · IPO Readiness">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
-        <KpiCard label="Total Workers" value={fmtNum(total)} hint="All worker types" />
-        <KpiCard label="Active Headcount" value={fmtNum(active)} hint={`${((active/total)*100).toFixed(1)}% of workers`} />
-        <KpiCard label="Monthly Payroll Run Rate" value={fmtUSD(runRate)} hint="Burdened, USD" />
-        <KpiCard label="International HC %" value={`${intlPct.toFixed(1)}%`} hint="Toronto, London, Bangalore" />
-        <KpiCard label="Payroll Anomalies" value={fmtNum(anomalies)} tone="warn" hint="Current preview period" />
-        <KpiCard label="Saved Plans" value={fmtNum(SCENARIOS.length)} hint="Workforce scenarios" />
+    <AppShell title="Welcome back, Jordan" subtitle="Home">
+      {/* Hero banner */}
+      <div
+        className="rounded-xl p-7 mb-6 text-white relative overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(135deg, var(--wd-navy-deep) 0%, var(--wd-blue) 70%, var(--wd-teal) 130%)",
+        }}
+      >
+        <div className="relative z-10 max-w-2xl">
+          <div className="text-[11px] uppercase tracking-[0.18em] text-white/70">Monday, June 15, 2026</div>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight">Your people data at a glance</h2>
+          <p className="mt-1.5 text-sm text-white/80">
+            {fmtNum(active)} active workers · {fmtUSD(runRate)} monthly run rate ·{" "}
+            {anomalies > 0 ? `${anomalies} payroll anomalies need review` : "no payroll anomalies"}.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link
+              to="/workflow"
+              className="inline-flex items-center gap-1.5 rounded-md bg-white text-[13px] font-medium px-3.5 h-9 hover:bg-white/90 transition-colors"
+              style={{ color: "var(--wd-navy-deep)" }}
+            >
+              Start a worker change <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
+            <Link
+              to="/dashboard"
+              className="inline-flex items-center gap-1.5 rounded-md border border-white/30 text-[13px] font-medium px-3.5 h-9 hover:bg-white/10 transition-colors"
+            >
+              Open dashboard
+            </Link>
+          </div>
+        </div>
+        <div
+          className="absolute -right-16 -top-16 h-64 w-64 rounded-full opacity-30"
+          style={{ background: "radial-gradient(circle, var(--wd-orange) 0%, transparent 60%)" }}
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <SectionCard title="Headcount by Department" description="All worker types, current period">
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={byDept} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
-                <CartesianGrid stroke="#eef2f6" vertical={false} />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#94a3b8" />
-                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" />
-                <Tooltip />
-                <Bar dataKey="headcount" fill="#1e3a5f" radius={[2,2,0,0]} />
-              </BarChart>
-            </ResponsiveContainer>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Worklets */}
+        <section className="lg:col-span-2">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-foreground">Applications</h3>
+            <span className="text-xs text-muted-foreground">{WORKLETS.length} worklets</span>
           </div>
-        </SectionCard>
-
-        <SectionCard title="Headcount by Location">
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={byLoc} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
-                <CartesianGrid stroke="#eef2f6" vertical={false} />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#94a3b8" />
-                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" />
-                <Tooltip />
-                <Bar dataKey="headcount" fill="#3b82a3" radius={[2,2,0,0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {WORKLETS.map((w) => {
+              const Icon = w.icon;
+              return (
+                <Link
+                  key={w.to}
+                  to={w.to as never}
+                  className="group rounded-lg border border-border bg-card p-4 hover:shadow-md hover:-translate-y-0.5 transition-all"
+                >
+                  <div
+                    className="h-11 w-11 rounded-lg flex items-center justify-center text-white mb-3"
+                    style={{ background: w.color }}
+                  >
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="text-[13px] font-semibold text-foreground leading-tight">{w.label}</div>
+                  <div className="text-[11px] text-muted-foreground mt-1 leading-snug">{w.description}</div>
+                </Link>
+              );
+            })}
           </div>
-        </SectionCard>
+        </section>
 
-        <SectionCard title="Level Distribution">
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={byLevel} dataKey="headcount" nameKey="name" outerRadius={90} innerRadius={50}>
-                  {byLevel.map((_, i) => (
-                    <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </SectionCard>
+        {/* Right column: Inbox + Announcements */}
+        <aside className="space-y-6">
+          <section className="rounded-lg border border-border bg-card">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <div className="flex items-center gap-2">
+                <Inbox className="h-4 w-4 text-muted-foreground" />
+                <h3 className="text-sm font-semibold">Your Inbox</h3>
+              </div>
+              <Link to="/workflow" className="text-xs font-medium" style={{ color: "var(--primary)" }}>
+                View all
+              </Link>
+            </div>
+            <ul className="divide-y divide-border">
+              {tasks.map((t, i) => {
+                const Icon = t.icon;
+                return (
+                  <li key={i} className="px-4 py-3 flex items-start gap-3">
+                    <Icon
+                      className={`h-4 w-4 mt-0.5 ${t.status === "pending" ? "text-amber-600" : "text-emerald-600"}`}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[13px] font-medium text-foreground leading-snug">{t.label}</div>
+                      <div className="text-[11px] text-muted-foreground mt-0.5">{t.who}</div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
 
-        <SectionCard title="12-Month Projected Headcount" description={`Source: ${SCENARIOS[0].name}`}>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={conservative.monthlyHeadcount} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
-                <CartesianGrid stroke="#eef2f6" vertical={false} />
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" domain={["auto","auto"]} />
-                <Tooltip />
-                <Line type="monotone" dataKey="headcount" stroke="#1e3a5f" strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </SectionCard>
-
-        <SectionCard title="Monthly Payroll Cost by Department" description="Burdened, USD">
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={payrollByDept} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
-                <CartesianGrid stroke="#eef2f6" vertical={false} />
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#94a3b8" />
-                <YAxis tick={{ fontSize: 11 }} stroke="#94a3b8" tickFormatter={(v) => `$${(v/1_000_000).toFixed(1)}M`} />
-                <Tooltip formatter={(v: number) => fmtUSD(v)} />
-                <Bar dataKey="cost" fill="#cf8a3a" radius={[2,2,0,0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </SectionCard>
-
-        <SectionCard title="IPO Readiness Notes" description="Curated indicators reviewed weekly">
-          <ul className="text-sm space-y-2.5 text-foreground">
-            <li className="flex justify-between gap-4 border-b border-border pb-2"><span className="text-muted-foreground">Compensation bands reviewed</span><span className="font-medium">Q1 2026 ✓</span></li>
-            <li className="flex justify-between gap-4 border-b border-border pb-2"><span className="text-muted-foreground">SOX Payroll controls in place</span><span className="font-medium">Yes — Audit log live</span></li>
-            <li className="flex justify-between gap-4 border-b border-border pb-2"><span className="text-muted-foreground">Workday migration cutover</span><span className="font-medium">Target 2026-12-01</span></li>
-            <li className="flex justify-between gap-4 border-b border-border pb-2"><span className="text-muted-foreground">Pending data quality issues</span><span className="font-medium text-amber-700">{anomalies} flagged</span></li>
-            <li className="flex justify-between gap-4"><span className="text-muted-foreground">International payroll providers</span><span className="font-medium">3 in production</span></li>
-          </ul>
-        </SectionCard>
+          <section className="rounded-lg border border-border bg-card">
+            <div className="px-4 py-3 border-b border-border">
+              <h3 className="text-sm font-semibold">Announcements</h3>
+            </div>
+            <ul className="divide-y divide-border">
+              {announcements.map((a, i) => (
+                <li key={i} className="px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
+                      style={{ background: "var(--accent)", color: "var(--accent-foreground)" }}
+                    >
+                      {a.tag}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground ml-auto">{a.date}</span>
+                  </div>
+                  <div className="text-[13px] font-medium text-foreground mt-1.5 leading-snug">{a.title}</div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </aside>
       </div>
     </AppShell>
   );
