@@ -64,6 +64,50 @@ export type Database = {
           },
         ]
       }
+      business_process_events: {
+        Row: {
+          actor_label: string | null
+          actor_user_id: string | null
+          business_process_id: string
+          event_type: string
+          from_status: string | null
+          id: string
+          occurred_at: string
+          payload: Json | null
+          to_status: string | null
+        }
+        Insert: {
+          actor_label?: string | null
+          actor_user_id?: string | null
+          business_process_id: string
+          event_type: string
+          from_status?: string | null
+          id?: string
+          occurred_at?: string
+          payload?: Json | null
+          to_status?: string | null
+        }
+        Update: {
+          actor_label?: string | null
+          actor_user_id?: string | null
+          business_process_id?: string
+          event_type?: string
+          from_status?: string | null
+          id?: string
+          occurred_at?: string
+          payload?: Json | null
+          to_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_process_events_business_process_id_fkey"
+            columns: ["business_process_id"]
+            isOneToOne: false
+            referencedRelation: "business_processes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_processes: {
         Row: {
           approved_at: string | null
@@ -224,10 +268,12 @@ export type Database = {
           level_id: string
           location_id: string
           manager_id: string | null
+          position_id: string | null
           salary: number
           salary_usd: number
           status: Database["public"]["Enums"]["employee_status"]
           supervisory_org: string | null
+          supervisory_org_id: string | null
           updated_at: string
         }
         Insert: {
@@ -243,10 +289,12 @@ export type Database = {
           level_id: string
           location_id: string
           manager_id?: string | null
+          position_id?: string | null
           salary: number
           salary_usd: number
           status?: Database["public"]["Enums"]["employee_status"]
           supervisory_org?: string | null
+          supervisory_org_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -262,10 +310,12 @@ export type Database = {
           level_id?: string
           location_id?: string
           manager_id?: string | null
+          position_id?: string | null
           salary?: number
           salary_usd?: number
           status?: Database["public"]["Enums"]["employee_status"]
           supervisory_org?: string | null
+          supervisory_org_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -304,6 +354,20 @@ export type Database = {
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "employees_position_id_fkey"
+            columns: ["position_id"]
+            isOneToOne: false
+            referencedRelation: "positions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_supervisory_org_id_fkey"
+            columns: ["supervisory_org_id"]
+            isOneToOne: false
+            referencedRelation: "supervisory_orgs"
+            referencedColumns: ["id"]
+          },
         ]
       }
       job_history: {
@@ -320,7 +384,9 @@ export type Database = {
           level_id: string | null
           location_id: string | null
           manager_id: string | null
+          position_id: string | null
           status: Database["public"]["Enums"]["employee_status"] | null
+          supervisory_org_id: string | null
         }
         Insert: {
           business_process_id?: string | null
@@ -335,7 +401,9 @@ export type Database = {
           level_id?: string | null
           location_id?: string | null
           manager_id?: string | null
+          position_id?: string | null
           status?: Database["public"]["Enums"]["employee_status"] | null
+          supervisory_org_id?: string | null
         }
         Update: {
           business_process_id?: string | null
@@ -350,7 +418,9 @@ export type Database = {
           level_id?: string | null
           location_id?: string | null
           manager_id?: string | null
+          position_id?: string | null
           status?: Database["public"]["Enums"]["employee_status"] | null
+          supervisory_org_id?: string | null
         }
         Relationships: [
           {
@@ -400,6 +470,20 @@ export type Database = {
             columns: ["manager_id"]
             isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_history_position_id_fkey"
+            columns: ["position_id"]
+            isOneToOne: false
+            referencedRelation: "positions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_history_supervisory_org_id_fkey"
+            columns: ["supervisory_org_id"]
+            isOneToOne: false
+            referencedRelation: "supervisory_orgs"
             referencedColumns: ["id"]
           },
         ]
@@ -502,6 +586,148 @@ export type Database = {
         }
         Relationships: []
       }
+      position_assignments: {
+        Row: {
+          assignment_reason: string | null
+          business_process_id: string | null
+          created_at: string
+          effective_date: string
+          employee_id: string
+          end_date: string | null
+          id: string
+          position_id: string
+        }
+        Insert: {
+          assignment_reason?: string | null
+          business_process_id?: string | null
+          created_at?: string
+          effective_date: string
+          employee_id: string
+          end_date?: string | null
+          id?: string
+          position_id: string
+        }
+        Update: {
+          assignment_reason?: string | null
+          business_process_id?: string | null
+          created_at?: string
+          effective_date?: string
+          employee_id?: string
+          end_date?: string | null
+          id?: string
+          position_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "position_assignments_business_process_id_fkey"
+            columns: ["business_process_id"]
+            isOneToOne: false
+            referencedRelation: "business_processes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "position_assignments_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "position_assignments_position_id_fkey"
+            columns: ["position_id"]
+            isOneToOne: false
+            referencedRelation: "positions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      positions: {
+        Row: {
+          closed_date: string | null
+          created_at: string
+          department_id: string | null
+          fte: number
+          id: string
+          is_filled: boolean
+          is_open_to_hire: boolean
+          job_profile_id: string | null
+          level_id: string | null
+          location_id: string | null
+          opened_date: string | null
+          position_code: string
+          supervisory_org_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          closed_date?: string | null
+          created_at?: string
+          department_id?: string | null
+          fte?: number
+          id?: string
+          is_filled?: boolean
+          is_open_to_hire?: boolean
+          job_profile_id?: string | null
+          level_id?: string | null
+          location_id?: string | null
+          opened_date?: string | null
+          position_code: string
+          supervisory_org_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          closed_date?: string | null
+          created_at?: string
+          department_id?: string | null
+          fte?: number
+          id?: string
+          is_filled?: boolean
+          is_open_to_hire?: boolean
+          job_profile_id?: string | null
+          level_id?: string | null
+          location_id?: string | null
+          opened_date?: string | null
+          position_code?: string
+          supervisory_org_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "positions_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "positions_job_profile_id_fkey"
+            columns: ["job_profile_id"]
+            isOneToOne: false
+            referencedRelation: "job_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "positions_level_id_fkey"
+            columns: ["level_id"]
+            isOneToOne: false
+            referencedRelation: "levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "positions_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "positions_supervisory_org_id_fkey"
+            columns: ["supervisory_org_id"]
+            isOneToOne: false
+            referencedRelation: "supervisory_orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -525,6 +751,74 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      supervisory_orgs: {
+        Row: {
+          code: string
+          created_at: string
+          department_id: string | null
+          id: string
+          is_active: boolean
+          location_id: string | null
+          manager_employee_id: string | null
+          name: string
+          parent_org_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          department_id?: string | null
+          id?: string
+          is_active?: boolean
+          location_id?: string | null
+          manager_employee_id?: string | null
+          name: string
+          parent_org_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          department_id?: string | null
+          id?: string
+          is_active?: boolean
+          location_id?: string | null
+          manager_employee_id?: string | null
+          name?: string
+          parent_org_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supervisory_orgs_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supervisory_orgs_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supervisory_orgs_manager_employee_id_fkey"
+            columns: ["manager_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supervisory_orgs_parent_org_id_fkey"
+            columns: ["parent_org_id"]
+            isOneToOne: false
+            referencedRelation: "supervisory_orgs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
