@@ -14,16 +14,290 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      departments: {
+        Row: {
+          cost_center: string
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          cost_center: string
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          cost_center?: string
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      employees: {
+        Row: {
+          band_status: Database["public"]["Enums"]["band_status"]
+          created_at: string
+          currency: string
+          department_id: string
+          first_name: string
+          hire_date: string
+          id: string
+          job_profile_id: string
+          last_name: string
+          level_id: string
+          location_id: string
+          manager_id: string | null
+          salary: number
+          salary_usd: number
+          status: Database["public"]["Enums"]["employee_status"]
+          supervisory_org: string | null
+          updated_at: string
+        }
+        Insert: {
+          band_status?: Database["public"]["Enums"]["band_status"]
+          created_at?: string
+          currency: string
+          department_id: string
+          first_name: string
+          hire_date: string
+          id: string
+          job_profile_id: string
+          last_name: string
+          level_id: string
+          location_id: string
+          manager_id?: string | null
+          salary: number
+          salary_usd: number
+          status?: Database["public"]["Enums"]["employee_status"]
+          supervisory_org?: string | null
+          updated_at?: string
+        }
+        Update: {
+          band_status?: Database["public"]["Enums"]["band_status"]
+          created_at?: string
+          currency?: string
+          department_id?: string
+          first_name?: string
+          hire_date?: string
+          id?: string
+          job_profile_id?: string
+          last_name?: string
+          level_id?: string
+          location_id?: string
+          manager_id?: string | null
+          salary?: number
+          salary_usd?: number
+          status?: Database["public"]["Enums"]["employee_status"]
+          supervisory_org?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_job_profile_id_fkey"
+            columns: ["job_profile_id"]
+            isOneToOne: false
+            referencedRelation: "job_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_level_id_fkey"
+            columns: ["level_id"]
+            isOneToOne: false
+            referencedRelation: "levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_profiles: {
+        Row: {
+          created_at: string
+          department_id: string
+          id: string
+          job_family: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          department_id: string
+          id?: string
+          job_family: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          department_id?: string
+          id?: string
+          job_family?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_profiles_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      levels: {
+        Row: {
+          band_high: number
+          band_low: number
+          band_mid: number
+          code: string
+          created_at: string
+          id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          band_high: number
+          band_low: number
+          band_mid: number
+          code: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          band_high?: number
+          band_low?: number
+          band_mid?: number
+          code?: string
+          created_at?: string
+          id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      locations: {
+        Row: {
+          country: string
+          created_at: string
+          currency: string
+          id: string
+          loc_mult: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          country: string
+          created_at?: string
+          currency: string
+          id?: string
+          loc_mult?: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          loc_mult?: number
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "planner" | "viewer"
+      band_status: "Below Band" | "Within Band" | "Above Band"
+      employee_status:
+        | "Active"
+        | "On Leave"
+        | "Termination Pending"
+        | "Contractor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +424,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "planner", "viewer"],
+      band_status: ["Below Band", "Within Band", "Above Band"],
+      employee_status: [
+        "Active",
+        "On Leave",
+        "Termination Pending",
+        "Contractor",
+      ],
+    },
   },
 } as const
