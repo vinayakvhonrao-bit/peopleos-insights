@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell, SectionCard, StatusBadge } from "@/components/layout/AppShell";
 import {
-  EMPLOYEES, DEPARTMENTS, LOCATION_LIST, LEVEL_LIST, STATUS_LIST,
+  EMPLOYEES, DEPARTMENTS, LOCATION_LIST, LEVEL_LIST, STATUS_LIST, MANAGER_LIST,
   fmtCur, fmtNum, tenureYears, tenureBand,
   type Employee,
 } from "@/lib/data";

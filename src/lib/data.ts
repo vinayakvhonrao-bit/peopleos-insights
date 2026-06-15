@@ -274,6 +274,7 @@ export const DEPARTMENTS: Department[] = ["Engineering", "GPU Cloud", "On-Prem",
 export const LOCATION_LIST = LOCATIONS;
 export const LEVEL_LIST = LEVELS;
 export const STATUS_LIST = STATUSES;
+export const MANAGER_LIST = Array.from(new Set(EMPLOYEES.map((e) => e.managerName).filter((m) => m && m !== "—"))).sort();
 
 // ---------- Aggregations ----------
 
