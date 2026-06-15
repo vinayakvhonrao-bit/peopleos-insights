@@ -302,6 +302,15 @@ export function countBy<K extends string>(arr: Employee[], key: (e: Employee) =>
 
 // ---------- Payroll ----------
 
+export interface TaxBreakdown {
+  fica: number;
+  sui: number;
+  futa: number;
+  ukNI: number;
+  caCppEi: number;
+  inPF: number;
+}
+
 export interface PayrollRow {
   employeeId: string;
   name: string;
@@ -314,15 +323,53 @@ export interface PayrollRow {
   totalBurdened: number;
   included: boolean;
   anomaly: string | null;
+  taxBreakdown: TaxBreakdown;
+  taxRuleLabel: string;
+  benefitsRate: number;
 }
 
 const US_LOCS: Location[] = ["SF", "San Jose", "Remote-US"];
+const CA_LOCS: Location[] = ["SF", "San Jose"]; // California SUI applies
 
-function employerTaxRate(loc: Location): number {
-  if (US_LOCS.includes(loc)) return 0.0865; // FICA + simplified unemployment
-  if (loc === "London") return 0.138;
-  if (loc === "Toronto") return 0.075;
-  return 0.12 * 0.5; // India PF: 12% of 50% gross => 6%
+// Wage caps and rates per the exercise spec
+const FICA_RATE = 0.0765;
+const FICA_WAGE_BASE = 168600;
+const SUI_RATE = 0.062;
+const SUI_WAGE_BASE = 7000;
+const FUTA_RATE = 0.006;
+const FUTA_WAGE_BASE = 7000;
+const UK_NI_RATE = 0.138;
+const UK_NI_SECONDARY_THRESHOLD_USD = 11557; // ≈ £9,100 at FX 1.27
+const CA_CPP_EI_RATE = 0.075;
+const IN_PF_RATE = 0.12;
+const IN_BASIC_OF_GROSS = 0.50;
+
+// Annual employer taxes (USD) for an employee.
+function annualEmployerTaxes(salaryUSD: number, loc: Location): TaxBreakdown {
+  const tb: TaxBreakdown = { fica: 0, sui: 0, futa: 0, ukNI: 0, caCppEi: 0, inPF: 0 };
+  if (US_LOCS.includes(loc)) {
+    tb.fica = Math.min(salaryUSD, FICA_WAGE_BASE) * FICA_RATE;
+    tb.futa = Math.min(salaryUSD, FUTA_WAGE_BASE) * FUTA_RATE;
+    if (CA_LOCS.includes(loc)) {
+      tb.sui = Math.min(salaryUSD, SUI_WAGE_BASE) * SUI_RATE;
+    }
+  } else if (loc === "London") {
+    tb.ukNI = Math.max(0, salaryUSD - UK_NI_SECONDARY_THRESHOLD_USD) * UK_NI_RATE;
+  } else if (loc === "Toronto") {
+    tb.caCppEi = salaryUSD * CA_CPP_EI_RATE;
+  } else if (loc === "Bangalore") {
+    tb.inPF = salaryUSD * IN_BASIC_OF_GROSS * IN_PF_RATE;
+  }
+  return tb;
+}
+
+function taxRuleLabel(loc: Location): string {
+  if (CA_LOCS.includes(loc)) return "US (CA): FICA 7.65% + SUI 6.2% + FUTA 0.6%";
+  if (US_LOCS.includes(loc)) return "US: FICA 7.65% + FUTA 0.6%";
+  if (loc === "London") return "UK NI: 13.8% above secondary threshold";
+  if (loc === "Toronto") return "Canada CPP + EI: ~7.5% blended";
+  if (loc === "Bangalore") return "India PF: 12% × (50% gross)";
+  return "—";
 }
 
 function benefitsRate(loc: Location): number {
@@ -331,7 +378,6 @@ function benefitsRate(loc: Location): number {
 
 export function buildPayroll(): PayrollRow[] {
   const rows: PayrollRow[] = [];
-  // Compute department-level avg pay for anomaly comparison
   const deptAvg: Record<Department, number> = {} as Record<Department, number>;
   for (const d of DEPARTMENTS) {
     const list = EMPLOYEES.filter((e) => e.department === d && e.status === "Active");
@@ -343,9 +389,8 @@ export function buildPayroll(): PayrollRow[] {
     let included = true;
     let anomaly: string | null = null;
 
-    // Inclusion rules
     if (e.status === "Termination Pending") {
-      included = true; // included but flagged
+      included = true;
       anomaly = "Termination Pending worker included in payroll";
     } else if (e.status === "On Leave") {
       included = false;
@@ -353,33 +398,36 @@ export function buildPayroll(): PayrollRow[] {
       included = false;
     }
 
-    // Slight per-period jitter for anomaly seeding (deterministic by id)
     const idNum = Number(e.id.replace(/\D/g, ""));
     const jitter = ((idNum * 9301 + 49297) % 233280) / 233280;
     let gross = semi;
-    if (jitter < 0.02) gross = semi * 1.25; // > 20% deviation anomaly
+    if (jitter < 0.02) gross = semi * 1.25;
     if (!anomaly && gross > semi * 1.2) anomaly = "Pay deviation > 20% from expected";
 
-    // New hire mid-period
     const hire = new Date(e.hireDate);
     const periodStart = new Date("2026-06-01");
     if (hire > periodStart && hire <= new Date("2026-06-15")) {
       if (!anomaly) anomaly = "New hire mid-period — prorate review";
     }
-
-    if (!anomaly && e.bandStatus === "Above Band") {
-      anomaly = "Salary above compensation band";
-    }
-
+    if (!anomaly && e.bandStatus === "Above Band") anomaly = "Salary above compensation band";
     if (!anomaly && Math.abs(gross - deptAvg[e.department]) / deptAvg[e.department] > 0.6) {
       anomaly = "Department-level cost deviation";
     }
 
-    const taxRate = employerTaxRate(e.location);
     const benRate = benefitsRate(e.location);
+    const annualTax = annualEmployerTaxes(e.salaryUSD, e.location);
+    const periodTax: TaxBreakdown = {
+      fica: annualTax.fica / 24,
+      sui: annualTax.sui / 24,
+      futa: annualTax.futa / 24,
+      ukNI: annualTax.ukNI / 24,
+      caCppEi: annualTax.caCppEi / 24,
+      inPF: annualTax.inPF / 24,
+    };
+    const totalTaxPeriod = Object.values(periodTax).reduce((s, v) => s + v, 0);
 
     const grossPay = included ? Math.round(gross) : 0;
-    const employerTaxes = Math.round(grossPay * taxRate);
+    const employerTaxes = included ? Math.round(totalTaxPeriod) : 0;
     const benefits = Math.round(grossPay * benRate);
     const totalBurdened = grossPay + employerTaxes + benefits;
 
@@ -395,6 +443,11 @@ export function buildPayroll(): PayrollRow[] {
       totalBurdened,
       included,
       anomaly: included ? anomaly : null,
+      taxBreakdown: included
+        ? periodTax
+        : { fica: 0, sui: 0, futa: 0, ukNI: 0, caCppEi: 0, inPF: 0 },
+      taxRuleLabel: taxRuleLabel(e.location),
+      benefitsRate: benRate,
     });
   }
   return rows;
@@ -403,7 +456,6 @@ export function buildPayroll(): PayrollRow[] {
 export const PAYROLL = buildPayroll();
 
 export function monthlyRunRate(): number {
-  // Semi-monthly burdened * 2
   return PAYROLL.reduce((s, r) => s + r.totalBurdened, 0) * 2;
 }
 
