@@ -282,7 +282,7 @@ function WorkflowPage() {
                   const sortedApprovals = [...approvals].sort((a, b) => a.step_order - b.step_order);
                   const nextPending = sortedApprovals.find((a) => a.decision === "Pending");
                   const empLabel = emp ? `${(emp as { first_name: string }).first_name} ${(emp as { last_name: string }).last_name}` : "—";
-                  const empId = (emp as { id?: string } | null)?.id ?? bp.employees && (bp.employees as never as { id: string }).id;
+                  const empId = (emp as { id?: string } | null)?.id ?? (bp.employees ? (bp.employees as never as { id: string }).id : "—");
                   return (
                     <tr key={bp.id} className="border-t border-border align-top">
                       <td className="px-3 py-2 font-mono text-[10px] text-muted-foreground">{bp.id.slice(0, 8)}</td>
