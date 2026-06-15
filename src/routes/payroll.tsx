@@ -90,7 +90,67 @@ function PayrollPage() {
         </div>
       </SectionCard>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+      <SectionCard
+        title="Employee-Level Payroll Preview"
+        description={`${fmtNum(rows.length)} rows · Semi-Monthly Period Ending 2026-06-15`}
+        actions={
+          <div className="flex items-center gap-3 text-xs">
+            <select value={dept} onChange={(e) => setDept(e.target.value)} className="border border-border rounded-md px-2 py-1 bg-background">
+              <option value="">All Departments</option>
+              {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
+            </select>
+            <label className="inline-flex items-center gap-1.5">
+              <input type="checkbox" checked={onlyAnoms} onChange={(e) => setOnlyAnoms(e.target.checked)} />
+              Anomalies only
+            </label>
+          </div>
+        }
+      >
+        <div className="overflow-x-auto border border-border rounded-md max-h-[520px] overflow-y-auto">
+          <table className="w-full text-xs">
+            <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground sticky top-0">
+              <tr>
+                <th className="px-3 py-2 text-left font-medium">Emp ID</th>
+                <th className="px-3 py-2 text-left font-medium">Worker</th>
+                <th className="px-3 py-2 text-left font-medium">Dept</th>
+                <th className="px-3 py-2 text-left font-medium">Location</th>
+                <th className="px-3 py-2 text-left font-medium">Status</th>
+                <th className="px-3 py-2 text-right font-medium">Gross</th>
+                <th className="px-3 py-2 text-right font-medium">Taxes</th>
+                <th className="px-3 py-2 text-right font-medium">Benefits</th>
+                <th className="px-3 py-2 text-right font-medium">Burdened</th>
+                <th className="px-3 py-2 text-left font-medium">Inclusion</th>
+                <th className="px-3 py-2 text-left font-medium">Anomaly</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.slice(0, 300).map((r) => (
+                <tr key={r.employeeId} className={`border-t border-border ${r.anomaly ? "bg-amber-50/40" : ""}`}>
+                  <td className="px-3 py-1.5 font-mono">{r.employeeId}</td>
+                  <td className="px-3 py-1.5 font-medium">{r.name}</td>
+                  <td className="px-3 py-1.5">{r.department}</td>
+                  <td className="px-3 py-1.5">{r.location}</td>
+                  <td className="px-3 py-1.5"><StatusBadge status={r.status} /></td>
+                  <td className="px-3 py-1.5 text-right tabular-nums">{fmtUSD(r.grossPay)}</td>
+                  <td className="px-3 py-1.5 text-right tabular-nums">{fmtUSD(r.employerTaxes)}</td>
+                  <td className="px-3 py-1.5 text-right tabular-nums">{fmtUSD(r.benefits)}</td>
+                  <td className="px-3 py-1.5 text-right tabular-nums font-medium">{fmtUSD(r.totalBurdened)}</td>
+                  <td className="px-3 py-1.5">{r.included ? <span className="text-emerald-700">Included</span> : <span className="text-muted-foreground">Excluded</span>}</td>
+                  <td className="px-3 py-1.5">
+                    {r.anomaly ? (
+                      <span className="inline-flex items-center gap-1 text-amber-800">
+                        <AlertTriangle className="h-3 w-3" /> {r.anomaly}
+                      </span>
+                    ) : <span className="text-muted-foreground">—</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </SectionCard>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <SectionCard title="Payroll Cost by Department">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
@@ -127,52 +187,6 @@ function PayrollPage() {
           </table>
         </SectionCard>
       </div>
-
-      <SectionCard
-        title="Employer Tax & Benefits Methodology"
-        description="Approximations applied per worker location. Annual employer tax computed with statutory caps, then spread evenly across 24 semi-monthly periods."
-      >
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
-              <tr>
-                <th className="px-3 py-2 text-left font-medium">Jurisdiction</th>
-                <th className="px-3 py-2 text-left font-medium">Applies to</th>
-                <th className="px-3 py-2 text-left font-medium">Employer Tax Rule</th>
-                <th className="px-3 py-2 text-left font-medium">Benefits Load</th>
-                <th className="px-3 py-2 text-right font-medium">Workers</th>
-                <th className="px-3 py-2 text-right font-medium">Period Taxes (USD)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                { j: "US — California (SF, San Jose)", a: "FICA + CA SUI + FUTA", rule: "7.65% on first $168,600 + 6.2% on first $7,000 + 0.6% on first $7,000", ben: "10% of gross", locs: ["SF","San Jose"] },
-                { j: "US — Other (Remote-US)", a: "FICA + FUTA", rule: "7.65% on first $168,600 + 0.6% on first $7,000", ben: "10% of gross", locs: ["Remote-US"] },
-                { j: "United Kingdom — London", a: "Employer NI", rule: "13.8% on wages above ~$11,557 (≈ £9,100) secondary threshold", ben: "5% of gross", locs: ["London"] },
-                { j: "Canada — Toronto", a: "CPP + EI employer portion", rule: "~7.5% blended approximation of gross", ben: "5% of gross", locs: ["Toronto"] },
-                { j: "India — Bangalore", a: "Employer PF", rule: "12% of basic; basic = 50% of gross → 6% of gross", ben: "5% of gross", locs: ["Bangalore"] },
-              ].map((r) => {
-                const subset = PAYROLL.filter((p) => r.locs.includes(p.location));
-                const workers = subset.filter((p) => p.included).length;
-                const taxes = subset.reduce((s, p) => s + p.employerTaxes, 0);
-                return (
-                  <tr key={r.j} className="border-t border-border align-top">
-                    <td className="px-3 py-2 font-medium">{r.j}</td>
-                    <td className="px-3 py-2 text-muted-foreground">{r.a}</td>
-                    <td className="px-3 py-2 text-muted-foreground">{r.rule}</td>
-                    <td className="px-3 py-2 text-muted-foreground">{r.ben}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{fmtNum(workers)}</td>
-                    <td className="px-3 py-2 text-right tabular-nums">{fmtUSD(taxes)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <p className="text-xs text-muted-foreground mt-3">
-          Approximations only — not modeling statutory minutiae. Per-period taxes = annual employer tax with wage caps applied, divided by 24 semi-monthly periods. In Workday this maps to Payroll Tax Authorities, Tax Elections by Location, and Earning/Deduction setup per pay group.
-        </p>
-      </SectionCard>
 
       <SectionCard title="Employer Tax Composition (Period Total)" description="Roll-up of period employer taxes by component across all included workers.">
         {(() => {
@@ -214,6 +228,87 @@ function PayrollPage() {
           );
         })()}
       </SectionCard>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <SectionCard
+          title="Employer Tax & Benefits Methodology"
+          description="Approximations applied per worker location. Annual employer tax computed with statutory caps, then spread evenly across 24 semi-monthly periods."
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
+                <tr>
+                  <th className="px-3 py-2 text-left font-medium">Jurisdiction</th>
+                  <th className="px-3 py-2 text-left font-medium">Applies to</th>
+                  <th className="px-3 py-2 text-left font-medium">Employer Tax Rule</th>
+                  <th className="px-3 py-2 text-left font-medium">Benefits</th>
+                  <th className="px-3 py-2 text-right font-medium">Workers</th>
+                  <th className="px-3 py-2 text-right font-medium">Period Taxes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { j: "US — California (SF, San Jose)", a: "FICA + CA SUI + FUTA", rule: "7.65% on first $168,600 + 6.2% on first $7,000 + 0.6% on first $7,000", ben: "10% of gross", locs: ["SF","San Jose"] },
+                  { j: "US — Other (Remote-US)", a: "FICA + FUTA", rule: "7.65% on first $168,600 + 0.6% on first $7,000", ben: "10% of gross", locs: ["Remote-US"] },
+                  { j: "United Kingdom — London", a: "Employer NI", rule: "13.8% on wages above ~$11,557 (≈ £9,100) secondary threshold", ben: "5% of gross", locs: ["London"] },
+                  { j: "Canada — Toronto", a: "CPP + EI employer portion", rule: "~7.5% blended approximation of gross", ben: "5% of gross", locs: ["Toronto"] },
+                  { j: "India — Bangalore", a: "Employer PF", rule: "12% of basic; basic = 50% of gross → 6% of gross", ben: "5% of gross", locs: ["Bangalore"] },
+                ].map((r) => {
+                  const subset = PAYROLL.filter((p) => r.locs.includes(p.location));
+                  const workers = subset.filter((p) => p.included).length;
+                  const taxes = subset.reduce((s, p) => s + p.employerTaxes, 0);
+                  return (
+                    <tr key={r.j} className="border-t border-border align-top">
+                      <td className="px-3 py-2 font-medium">{r.j}</td>
+                      <td className="px-3 py-2 text-muted-foreground">{r.a}</td>
+                      <td className="px-3 py-2 text-muted-foreground">{r.rule}</td>
+                      <td className="px-3 py-2 text-muted-foreground">{r.ben}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{fmtNum(workers)}</td>
+                      <td className="px-3 py-2 text-right tabular-nums">{fmtUSD(taxes)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            Approximations only — not modeling statutory minutiae. Per-period taxes = annual employer tax with wage caps applied, divided by 24 semi-monthly periods. In Workday this maps to Payroll Tax Authorities, Tax Elections by Location, and Earning/Deduction setup per pay group.
+          </p>
+        </SectionCard>
+
+        <SectionCard title="General Ledger Posting" description="Period 2026-06-15 · Posted to ERP after sign-off">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
+                <tr>
+                  <th className="px-3 py-2 text-left font-medium">Cost Center</th>
+                  <th className="px-3 py-2 text-left font-medium">Account</th>
+                  <th className="px-3 py-2 text-right font-medium">Debit</th>
+                  <th className="px-3 py-2 text-right font-medium">Credit</th>
+                  <th className="px-3 py-2 text-left font-medium">Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {GL_ENTRIES.map((g, i) => (
+                  <tr key={i} className="border-t border-border">
+                    <td className="px-3 py-2 font-mono text-xs">{g.costCenter}</td>
+                    <td className="px-3 py-2">{g.account}</td>
+                    <td className="px-3 py-2 text-right tabular-nums">{g.debit ? fmtUSD(g.debit) : "—"}</td>
+                    <td className="px-3 py-2 text-right tabular-nums">{g.credit ? fmtUSD(g.credit) : "—"}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{g.description}</td>
+                  </tr>
+                ))}
+                <tr className="border-t-2 border-border bg-muted/40 font-medium">
+                  <td className="px-3 py-2" colSpan={2}>Totals</td>
+                  <td className="px-3 py-2 text-right tabular-nums">{fmtUSD(GL_ENTRIES.reduce((s, g) => s + g.debit, 0))}</td>
+                  <td className="px-3 py-2 text-right tabular-nums">{fmtUSD(GL_ENTRIES.reduce((s, g) => s + g.credit, 0))}</td>
+                  <td className="px-3 py-2 text-muted-foreground">Balanced posting</td>
+                </tr>
+</tbody>
+            </table>
+          </div>
+        </SectionCard>
+      </div>
 
       <SectionCard
         title="US Tax Detail — Full Composition"
@@ -352,103 +447,6 @@ function PayrollPage() {
             </div>
           );
         })()}
-      </SectionCard>
-
-
-
-
-
-      <SectionCard
-        title="Employee-Level Payroll Preview"
-        description={`${fmtNum(rows.length)} rows`}
-        actions={
-          <div className="flex items-center gap-3 text-xs">
-            <select value={dept} onChange={(e) => setDept(e.target.value)} className="border border-border rounded-md px-2 py-1 bg-background">
-              <option value="">All Departments</option>
-              {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
-            </select>
-            <label className="inline-flex items-center gap-1.5">
-              <input type="checkbox" checked={onlyAnoms} onChange={(e) => setOnlyAnoms(e.target.checked)} />
-              Anomalies only
-            </label>
-          </div>
-        }
-      >
-        <div className="overflow-x-auto border border-border rounded-md max-h-[520px] overflow-y-auto">
-          <table className="w-full text-xs">
-            <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground sticky top-0">
-              <tr>
-                <th className="px-3 py-2 text-left font-medium">Emp ID</th>
-                <th className="px-3 py-2 text-left font-medium">Worker</th>
-                <th className="px-3 py-2 text-left font-medium">Dept</th>
-                <th className="px-3 py-2 text-left font-medium">Location</th>
-                <th className="px-3 py-2 text-left font-medium">Status</th>
-                <th className="px-3 py-2 text-right font-medium">Gross</th>
-                <th className="px-3 py-2 text-right font-medium">Taxes</th>
-                <th className="px-3 py-2 text-right font-medium">Benefits</th>
-                <th className="px-3 py-2 text-right font-medium">Burdened</th>
-                <th className="px-3 py-2 text-left font-medium">Inclusion</th>
-                <th className="px-3 py-2 text-left font-medium">Anomaly</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.slice(0, 300).map((r) => (
-                <tr key={r.employeeId} className={`border-t border-border ${r.anomaly ? "bg-amber-50/40" : ""}`}>
-                  <td className="px-3 py-1.5 font-mono">{r.employeeId}</td>
-                  <td className="px-3 py-1.5 font-medium">{r.name}</td>
-                  <td className="px-3 py-1.5">{r.department}</td>
-                  <td className="px-3 py-1.5">{r.location}</td>
-                  <td className="px-3 py-1.5"><StatusBadge status={r.status} /></td>
-                  <td className="px-3 py-1.5 text-right tabular-nums">{fmtUSD(r.grossPay)}</td>
-                  <td className="px-3 py-1.5 text-right tabular-nums">{fmtUSD(r.employerTaxes)}</td>
-                  <td className="px-3 py-1.5 text-right tabular-nums">{fmtUSD(r.benefits)}</td>
-                  <td className="px-3 py-1.5 text-right tabular-nums font-medium">{fmtUSD(r.totalBurdened)}</td>
-                  <td className="px-3 py-1.5">{r.included ? <span className="text-emerald-700">Included</span> : <span className="text-muted-foreground">Excluded</span>}</td>
-                  <td className="px-3 py-1.5">
-                    {r.anomaly ? (
-                      <span className="inline-flex items-center gap-1 text-amber-800">
-                        <AlertTriangle className="h-3 w-3" /> {r.anomaly}
-                      </span>
-                    ) : <span className="text-muted-foreground">—</span>}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </SectionCard>
-
-      <SectionCard title="General Ledger Posting" description="Period 2026-06-15 · Posted to ERP after sign-off">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
-              <tr>
-                <th className="px-3 py-2 text-left font-medium">Cost Center</th>
-                <th className="px-3 py-2 text-left font-medium">Account</th>
-                <th className="px-3 py-2 text-right font-medium">Debit</th>
-                <th className="px-3 py-2 text-right font-medium">Credit</th>
-                <th className="px-3 py-2 text-left font-medium">Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              {GL_ENTRIES.map((g, i) => (
-                <tr key={i} className="border-t border-border">
-                  <td className="px-3 py-2 font-mono text-xs">{g.costCenter}</td>
-                  <td className="px-3 py-2">{g.account}</td>
-                  <td className="px-3 py-2 text-right tabular-nums">{g.debit ? fmtUSD(g.debit) : "—"}</td>
-                  <td className="px-3 py-2 text-right tabular-nums">{g.credit ? fmtUSD(g.credit) : "—"}</td>
-                  <td className="px-3 py-2 text-muted-foreground">{g.description}</td>
-                </tr>
-              ))}
-              <tr className="border-t-2 border-border bg-muted/40 font-medium">
-                <td className="px-3 py-2" colSpan={2}>Totals</td>
-                <td className="px-3 py-2 text-right tabular-nums">{fmtUSD(GL_ENTRIES.reduce((s, g) => s + g.debit, 0))}</td>
-                <td className="px-3 py-2 text-right tabular-nums">{fmtUSD(GL_ENTRIES.reduce((s, g) => s + g.credit, 0))}</td>
-                <td className="px-3 py-2 text-muted-foreground">Balanced posting</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
       </SectionCard>
     </AppShell>
   );
