@@ -215,6 +215,147 @@ function PayrollPage() {
         })()}
       </SectionCard>
 
+      <SectionCard
+        title="US Tax Detail — Full Composition"
+        description="Decomposition of US payroll taxes for this period. Employer-side amounts flow into the burdened cost above; employee-side withholdings are shown for completeness (they reduce net pay, not employer cost)."
+      >
+        {(() => {
+          const us = PAYROLL.filter((p) => ["SF","San Jose","Remote-US"].includes(p.location) && p.included);
+          const ca = us.filter((p) => p.location === "SF" || p.location === "San Jose");
+          // Employer side (derive SS/Medicare split from FICA 7.65% = 6.2 + 1.45)
+          const ficaTotal = us.reduce((s, p) => s + p.taxBreakdown.fica, 0);
+          const ss = ficaTotal * (6.2 / 7.65);
+          const medicare = ficaTotal * (1.45 / 7.65);
+          const futa = us.reduce((s, p) => s + p.taxBreakdown.futa, 0);
+          const sui = ca.reduce((s, p) => s + p.taxBreakdown.sui, 0);
+          // CA ETT: 0.1% on first $7,000 (employer)
+          const ett = ca.reduce((s, p) => {
+            const emp = EMPLOYEES.find((e) => e.id === p.employeeId);
+            if (!emp) return s;
+            return s + (Math.min(emp.salaryUSD, 7000) * 0.001) / 24;
+          }, 0);
+
+          // Employee side estimates (period, USD). Informational only — Workday Payroll computes via tax engine.
+          const periodGrossUS = us.reduce((s, p) => s + p.grossPay, 0);
+          const periodGrossCA = ca.reduce((s, p) => s + p.grossPay, 0);
+          // Federal income tax: very rough effective ~18% on supplemental wages assumption for prototype
+          const eeFedIncome = us.reduce((s, p) => {
+            const emp = EMPLOYEES.find((e) => e.id === p.employeeId);
+            if (!emp) return s;
+            const annual = emp.salaryUSD;
+            // Effective rate buckets (married filing jointly approximation)
+            const eff = annual < 100000 ? 0.12 : annual < 200000 ? 0.18 : annual < 400000 ? 0.24 : 0.30;
+            return s + p.grossPay * eff;
+          }, 0);
+          const eeSS = periodGrossUS * (6.2 / 7.65) * 0 + ficaTotal * (6.2 / 7.65); // mirror of employer SS
+          const eeMedicare = ficaTotal * (1.45 / 7.65);
+          const eeAddlMedicare = us.reduce((s, p) => {
+            const emp = EMPLOYEES.find((e) => e.id === p.employeeId);
+            if (!emp) return s;
+            // 0.9% on wages above $200k (single threshold)
+            const over = Math.max(0, emp.salaryUSD - 200000);
+            return s + (over * 0.009) / 24;
+          }, 0);
+          // CA PIT: tiered effective ~6%
+          const eeCAPIT = ca.reduce((s, p) => {
+            const emp = EMPLOYEES.find((e) => e.id === p.employeeId);
+            if (!emp) return s;
+            const eff = emp.salaryUSD < 150000 ? 0.05 : emp.salaryUSD < 300000 ? 0.075 : 0.093;
+            return s + p.grossPay * eff;
+          }, 0);
+          // CA SDI: 1.1% no cap as of 2024+
+          const eeCASDI = periodGrossCA * 0.011;
+
+          const employer = [
+            { label: "Federal — Social Security (OASDI)", rate: "6.20%", base: "First $168,600 of wages", value: ss },
+            { label: "Federal — Medicare (HI)", rate: "1.45%", base: "All wages, no cap", value: medicare },
+            { label: "Federal — FUTA", rate: "0.60%", base: "First $7,000 of wages", value: futa },
+            { label: "California — SUI", rate: "6.20%", base: "First $7,000 (CA workers only)", value: sui },
+            { label: "California — ETT (Employment Training Tax)", rate: "0.10%", base: "First $7,000 (CA workers only)", value: ett },
+          ];
+          const employerTotal = employer.reduce((s, c) => s + c.value, 0) || 1;
+
+          const employee = [
+            { label: "Federal Income Tax Withholding", rate: "~12–30% tiered", base: "Supplemental withholding approximation by salary band", value: eeFedIncome },
+            { label: "Employee Social Security", rate: "6.20%", base: "First $168,600 of wages", value: eeSS },
+            { label: "Employee Medicare", rate: "1.45%", base: "All wages, no cap", value: eeMedicare },
+            { label: "Additional Medicare", rate: "0.90%", base: "Wages above $200,000 (single)", value: eeAddlMedicare },
+            { label: "California PIT (State Income Tax)", rate: "~5–9.3% tiered", base: "CA workers only", value: eeCAPIT },
+            { label: "California SDI", rate: "1.10%", base: "All CA wages, no cap (2024+)", value: eeCASDI },
+          ];
+          const employeeTotal = employee.reduce((s, c) => s + c.value, 0);
+
+          return (
+            <div className="space-y-5">
+              <div>
+                <div className="flex items-baseline justify-between mb-2">
+                  <h4 className="text-sm font-semibold">Employer-Paid (included in burdened cost)</h4>
+                  <div className="text-xs text-muted-foreground">Period total: <span className="font-semibold tabular-nums text-foreground">{fmtUSD(employerTotal)}</span></div>
+                </div>
+                <div className="overflow-x-auto border border-border rounded-md">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-medium">Component</th>
+                        <th className="px-3 py-2 text-left font-medium">Rate</th>
+                        <th className="px-3 py-2 text-left font-medium">Wage Base</th>
+                        <th className="px-3 py-2 text-right font-medium">Period Amount</th>
+                        <th className="px-3 py-2 text-right font-medium">% of US Employer Tax</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {employer.map((c) => (
+                        <tr key={c.label} className="border-t border-border">
+                          <td className="px-3 py-2 font-medium">{c.label}</td>
+                          <td className="px-3 py-2 tabular-nums">{c.rate}</td>
+                          <td className="px-3 py-2 text-muted-foreground">{c.base}</td>
+                          <td className="px-3 py-2 text-right tabular-nums">{fmtUSD(c.value)}</td>
+                          <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">{((c.value / employerTotal) * 100).toFixed(1)}%</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-baseline justify-between mb-2">
+                  <h4 className="text-sm font-semibold">Employee-Paid Withholdings <span className="text-xs font-normal text-muted-foreground">(informational — reduce net pay, not employer cost)</span></h4>
+                  <div className="text-xs text-muted-foreground">Period total: <span className="font-semibold tabular-nums text-foreground">{fmtUSD(employeeTotal)}</span></div>
+                </div>
+                <div className="overflow-x-auto border border-border rounded-md">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-medium">Component</th>
+                        <th className="px-3 py-2 text-left font-medium">Rate</th>
+                        <th className="px-3 py-2 text-left font-medium">Wage Base / Notes</th>
+                        <th className="px-3 py-2 text-right font-medium">Period Estimate</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {employee.map((c) => (
+                        <tr key={c.label} className="border-t border-border">
+                          <td className="px-3 py-2 font-medium">{c.label}</td>
+                          <td className="px-3 py-2 tabular-nums">{c.rate}</td>
+                          <td className="px-3 py-2 text-muted-foreground">{c.base}</td>
+                          <td className="px-3 py-2 text-right tabular-nums">{fmtUSD(c.value)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Estimates use simplified effective-rate bands for prototype clarity. In Workday Payroll, employee withholdings are computed by the embedded tax engine driven by Federal W-4 elections, state withholding certificates (CA DE 4), and local tax authorities mapped per Pay Group and Work Location.
+                </p>
+              </div>
+            </div>
+          );
+        })()}
+      </SectionCard>
+
+
+
 
 
       <SectionCard
