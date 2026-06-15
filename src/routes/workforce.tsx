@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell, SectionCard, StatusBadge } from "@/components/layout/AppShell";
 import {
-  EMPLOYEES, DEPARTMENTS, LOCATION_LIST, LEVEL_LIST, STATUS_LIST,
+  EMPLOYEES, DEPARTMENTS, LOCATION_LIST, LEVEL_LIST, STATUS_LIST, MANAGER_LIST,
   fmtCur, fmtNum, tenureYears, tenureBand,
   type Employee,
 } from "@/lib/data";
@@ -29,6 +29,7 @@ function WorkforcePage() {
   const [status, setStatus] = useState<string>("");
   const [tband, setTband] = useState<string>("");
   const [bstatus, setBstatus] = useState<string>("");
+  const [mgr, setMgr] = useState<string>("");
   const [selected, setSelected] = useState<Employee | null>(null);
 
   const filtered = useMemo(() => {
@@ -43,11 +44,12 @@ function WorkforcePage() {
       if (status && e.status !== status) return false;
       if (bstatus && e.bandStatus !== bstatus) return false;
       if (tband && tenureBand(tenureYears(e.hireDate)) !== tband) return false;
+      if (mgr && e.managerName !== mgr) return false;
       return true;
     });
-  }, [q, dept, loc, lvl, status, tband, bstatus]);
+  }, [q, dept, loc, lvl, status, tband, bstatus, mgr]);
 
-  const clearAll = () => { setQ(""); setDept(""); setLoc(""); setLvl(""); setStatus(""); setTband(""); setBstatus(""); };
+  const clearAll = () => { setQ(""); setDept(""); setLoc(""); setLvl(""); setStatus(""); setTband(""); setBstatus(""); setMgr(""); };
 
   return (
     <AppShell title="Workforce Explorer" subtitle="People Data · Worker Search">
@@ -74,6 +76,7 @@ function WorkforcePage() {
           <Select value={loc} onChange={setLoc} options={LOCATION_LIST as readonly string[]} placeholder="All Locations" />
           <Select value={lvl} onChange={setLvl} options={LEVEL_LIST as readonly string[]} placeholder="All Levels" />
           <Select value={status} onChange={setStatus} options={STATUS_LIST as readonly string[]} placeholder="All Statuses" />
+          <Select value={mgr} onChange={setMgr} options={MANAGER_LIST as readonly string[]} placeholder="All Managers" />
           <Select value={tband} onChange={setTband} options={TENURE_BANDS as readonly string[]} placeholder="All Tenure Bands" />
           <Select value={bstatus} onChange={setBstatus} options={BAND_STATUSES as readonly string[]} placeholder="All Comp Bands" />
         </div>
