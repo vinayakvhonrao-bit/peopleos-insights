@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WorkforceRouteImport } from './routes/workforce'
 import { Route as WorkflowRouteImport } from './routes/workflow'
+import { Route as SetupRouteImport } from './routes/setup'
 import { Route as PlanningRouteImport } from './routes/planning'
 import { Route as PayrollRouteImport } from './routes/payroll'
 import { Route as InsightsRouteImport } from './routes/insights'
@@ -25,6 +26,11 @@ const WorkforceRoute = WorkforceRouteImport.update({
 const WorkflowRoute = WorkflowRouteImport.update({
   id: '/workflow',
   path: '/workflow',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SetupRoute = SetupRouteImport.update({
+  id: '/setup',
+  path: '/setup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlanningRoute = PlanningRouteImport.update({
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/insights': typeof InsightsRoute
   '/payroll': typeof PayrollRoute
   '/planning': typeof PlanningRoute
+  '/setup': typeof SetupRoute
   '/workflow': typeof WorkflowRoute
   '/workforce': typeof WorkforceRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/insights': typeof InsightsRoute
   '/payroll': typeof PayrollRoute
   '/planning': typeof PlanningRoute
+  '/setup': typeof SetupRoute
   '/workflow': typeof WorkflowRoute
   '/workforce': typeof WorkforceRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/insights': typeof InsightsRoute
   '/payroll': typeof PayrollRoute
   '/planning': typeof PlanningRoute
+  '/setup': typeof SetupRoute
   '/workflow': typeof WorkflowRoute
   '/workforce': typeof WorkforceRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/insights'
     | '/payroll'
     | '/planning'
+    | '/setup'
     | '/workflow'
     | '/workforce'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/insights'
     | '/payroll'
     | '/planning'
+    | '/setup'
     | '/workflow'
     | '/workforce'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/insights'
     | '/payroll'
     | '/planning'
+    | '/setup'
     | '/workflow'
     | '/workforce'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   InsightsRoute: typeof InsightsRoute
   PayrollRoute: typeof PayrollRoute
   PlanningRoute: typeof PlanningRoute
+  SetupRoute: typeof SetupRoute
   WorkflowRoute: typeof WorkflowRoute
   WorkforceRoute: typeof WorkforceRoute
 }
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/workflow'
       fullPath: '/workflow'
       preLoaderRoute: typeof WorkflowRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/setup': {
+      id: '/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof SetupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/planning': {
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   InsightsRoute: InsightsRoute,
   PayrollRoute: PayrollRoute,
   PlanningRoute: PlanningRoute,
+  SetupRoute: SetupRoute,
   WorkflowRoute: WorkflowRoute,
   WorkforceRoute: WorkforceRoute,
 }

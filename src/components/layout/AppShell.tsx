@@ -8,6 +8,7 @@ import {
   Sparkles,
   FileText,
   Building2,
+  Settings,
 } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -19,6 +20,7 @@ const NAV: NavItem[] = [
   { to: "/workflow", label: "Worker Data Change", icon: GitBranch },
   { to: "/payroll", label: "Payroll Preview", icon: Calculator },
   { to: "/insights", label: "AI Insights", icon: Sparkles },
+  { to: "/setup", label: "Foundation Data", icon: Settings },
   { to: "/about", label: "About This Prototype", icon: FileText },
 ];
 
