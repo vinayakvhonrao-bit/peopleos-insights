@@ -129,6 +129,95 @@ function PayrollPage() {
       </div>
 
       <SectionCard
+        title="Employer Tax & Benefits Methodology"
+        description="Approximations applied per worker location. Annual employer tax computed with statutory caps, then spread evenly across 24 semi-monthly periods."
+      >
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
+              <tr>
+                <th className="px-3 py-2 text-left font-medium">Jurisdiction</th>
+                <th className="px-3 py-2 text-left font-medium">Applies to</th>
+                <th className="px-3 py-2 text-left font-medium">Employer Tax Rule</th>
+                <th className="px-3 py-2 text-left font-medium">Benefits Load</th>
+                <th className="px-3 py-2 text-right font-medium">Workers</th>
+                <th className="px-3 py-2 text-right font-medium">Period Taxes (USD)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { j: "US — California (SF, San Jose)", a: "FICA + CA SUI + FUTA", rule: "7.65% on first $168,600 + 6.2% on first $7,000 + 0.6% on first $7,000", ben: "10% of gross", locs: ["SF","San Jose"] },
+                { j: "US — Other (Remote-US)", a: "FICA + FUTA", rule: "7.65% on first $168,600 + 0.6% on first $7,000", ben: "10% of gross", locs: ["Remote-US"] },
+                { j: "United Kingdom — London", a: "Employer NI", rule: "13.8% on wages above ~$11,557 (≈ £9,100) secondary threshold", ben: "5% of gross", locs: ["London"] },
+                { j: "Canada — Toronto", a: "CPP + EI employer portion", rule: "~7.5% blended approximation of gross", ben: "5% of gross", locs: ["Toronto"] },
+                { j: "India — Bangalore", a: "Employer PF", rule: "12% of basic; basic = 50% of gross → 6% of gross", ben: "5% of gross", locs: ["Bangalore"] },
+              ].map((r) => {
+                const subset = PAYROLL.filter((p) => r.locs.includes(p.location));
+                const workers = subset.filter((p) => p.included).length;
+                const taxes = subset.reduce((s, p) => s + p.employerTaxes, 0);
+                return (
+                  <tr key={r.j} className="border-t border-border align-top">
+                    <td className="px-3 py-2 font-medium">{r.j}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{r.a}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{r.rule}</td>
+                    <td className="px-3 py-2 text-muted-foreground">{r.ben}</td>
+                    <td className="px-3 py-2 text-right tabular-nums">{fmtNum(workers)}</td>
+                    <td className="px-3 py-2 text-right tabular-nums">{fmtUSD(taxes)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p className="text-xs text-muted-foreground mt-3">
+          Approximations only — not modeling statutory minutiae. Per-period taxes = annual employer tax with wage caps applied, divided by 24 semi-monthly periods. In Workday this maps to Payroll Tax Authorities, Tax Elections by Location, and Earning/Deduction setup per pay group.
+        </p>
+      </SectionCard>
+
+      <SectionCard title="Employer Tax Composition (Period Total)" description="Roll-up of period employer taxes by component across all included workers.">
+        {(() => {
+          const totals = PAYROLL.reduce(
+            (acc, r) => {
+              acc.fica += r.taxBreakdown.fica;
+              acc.sui += r.taxBreakdown.sui;
+              acc.futa += r.taxBreakdown.futa;
+              acc.ukNI += r.taxBreakdown.ukNI;
+              acc.caCppEi += r.taxBreakdown.caCppEi;
+              acc.inPF += r.taxBreakdown.inPF;
+              return acc;
+            },
+            { fica: 0, sui: 0, futa: 0, ukNI: 0, caCppEi: 0, inPF: 0 },
+          );
+          const components = [
+            { label: "US FICA (7.65%)", value: totals.fica, rule: "Cap $168,600" },
+            { label: "CA SUI (6.2%)", value: totals.sui, rule: "Cap $7,000" },
+            { label: "US FUTA (0.6%)", value: totals.futa, rule: "Cap $7,000" },
+            { label: "UK Employer NI (13.8%)", value: totals.ukNI, rule: "Above ~$11,557 threshold" },
+            { label: "Canada CPP + EI (~7.5%)", value: totals.caCppEi, rule: "Blended approximation" },
+            { label: "India PF (12% of basic)", value: totals.inPF, rule: "Basic = 50% of gross" },
+          ];
+          const grand = components.reduce((s, c) => s + c.value, 0) || 1;
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {components.map((c) => (
+                <div key={c.label} className="border border-border rounded-md p-3">
+                  <div className="text-xs text-muted-foreground">{c.label}</div>
+                  <div className="text-lg font-semibold tabular-nums mt-0.5">{fmtUSD(c.value)}</div>
+                  <div className="text-[11px] text-muted-foreground mt-1">{c.rule}</div>
+                  <div className="h-1.5 bg-muted rounded-full mt-2 overflow-hidden">
+                    <div className="h-full bg-primary" style={{ width: `${(c.value / grand) * 100}%` }} />
+                  </div>
+                  <div className="text-[11px] text-muted-foreground mt-1 tabular-nums">{((c.value / grand) * 100).toFixed(1)}% of employer taxes</div>
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+      </SectionCard>
+
+
+
+      <SectionCard
         title="Employee-Level Payroll Preview"
         description={`${fmtNum(rows.length)} rows`}
         actions={
