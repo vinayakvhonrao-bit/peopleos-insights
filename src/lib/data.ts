@@ -23,9 +23,31 @@ export interface Employee {
   hireDate: string; // ISO
   status: Status;
   jobProfile: string;
+  jobFamily: string;
   costCenter: string;
+  supervisoryOrg: string;
   bandStatus: "Below Band" | "Within Band" | "Above Band";
 }
+
+const JOB_FAMILY: Record<string, string> = {
+  "Software Engineer": "Engineering / Software",
+  "Staff Engineer": "Engineering / Software",
+  "Engineering Manager": "Engineering / Management",
+  "Site Reliability Engineer": "Engineering / SRE",
+  "Cloud Platform Engineer": "Cloud Infrastructure",
+  "GPU Infrastructure Engineer": "Cloud Infrastructure",
+  "Cloud Solutions Architect": "Cloud Architecture",
+  "Capacity Planning Lead": "Cloud Operations",
+  "Datacenter Engineer": "Datacenter Operations",
+  "Hardware Operations": "Datacenter Operations",
+  "Network Engineer": "Network Engineering",
+  "Field Deployment Engineer": "Field Operations",
+  "People Partner": "Human Resources",
+  "Finance Analyst": "Finance",
+  "Legal Counsel": "Legal",
+  "Business Operations": "Business Operations",
+  "Recruiter": "Talent Acquisition",
+};
 
 const FIRST = [
   "Ava","Noah","Liam","Mia","Ethan","Olivia","Aiden","Sophia","Lucas","Isabella",
@@ -208,7 +230,9 @@ function generateEmployees(n: number): Employee[] {
       hireDate: randomHireDate(),
       status,
       jobProfile,
+      jobFamily: JOB_FAMILY[jobProfile] ?? department,
       costCenter: COST_CENTERS[department],
+      supervisoryOrg: "",
       bandStatus,
     };
     employees.push(emp);
@@ -235,8 +259,10 @@ function generateEmployees(n: number): Employee[] {
       const m = pool[Math.floor(rand() * pool.length)];
       emp.managerId = m.id;
       emp.managerName = m.name;
+      emp.supervisoryOrg = `${emp.department} — ${m.name.split(" ")[1] ?? m.name} Team (${m.id})`;
     } else {
       emp.managerName = "—";
+      emp.supervisoryOrg = `${emp.department} — Leadership`;
     }
   }
   return employees;

@@ -84,6 +84,8 @@ function WorkforcePage() {
               <tr>
                 <Th>Employee ID</Th>
                 <Th>Worker</Th>
+                <Th>Job Profile</Th>
+                <Th>Supervisory Org</Th>
                 <Th>Department</Th>
                 <Th>Location</Th>
                 <Th>Level</Th>
@@ -105,6 +107,8 @@ function WorkforcePage() {
                 >
                   <Td className="font-mono text-xs">{e.id}</Td>
                   <Td className="font-medium">{e.name}</Td>
+                  <Td>{e.jobProfile}</Td>
+                  <Td className="text-muted-foreground text-xs">{e.supervisoryOrg}</Td>
                   <Td>{e.department}</Td>
                   <Td>{e.location}</Td>
                   <Td>{e.level}</Td>
@@ -178,7 +182,14 @@ function WorkerDetailDrawer({ employee, onClose }: { employee: Employee; onClose
         </div>
         <div className="p-5 space-y-5">
           <Field label="Status" value={<StatusBadge status={e.status} />} />
-          <Section title="Current Position">
+          <Section title="Job & Position">
+            <Field label="Job Profile" value={e.jobProfile} />
+            <Field label="Job Family" value={e.jobFamily} />
+            <Field label="Level" value={e.level} />
+            <Field label="Position ID" value={<span className="font-mono text-xs">P-{e.id.slice(1)}</span>} />
+          </Section>
+          <Section title="Supervisory Organization">
+            <Field label="Sup Org" value={<span className="text-xs text-right">{e.supervisoryOrg}</span>} />
             <Field label="Department" value={e.department} />
             <Field label="Cost Center" value={e.costCenter} />
             <Field label="Location" value={e.location} />
