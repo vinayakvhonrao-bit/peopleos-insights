@@ -59,14 +59,20 @@ function PlanningPage() {
   const [showAdd, setShowAdd] = useState(false);
 
   const scenarioResults = useMemo(() => {
-    return SCENARIOS.map((s) => {
+    const real = SCENARIOS.map((s) => {
       const evts = events.filter((e) => e.scenarioId === s.id);
       const proj = projectScenario(evts);
       return { scenario: s, events: evts, projection: proj };
     });
+    const baseline = {
+      scenario: { id: "baseline", name: "Baseline (no events)" } as (typeof SCENARIOS)[number],
+      events: [] as PlanEvent[],
+      projection: BASELINE_PROJECTION,
+    };
+    return [...real, baseline];
   }, [events]);
 
-  const active = scenarioResults.find((r) => r.scenario.id === activeId)!;
+  const active = scenarioResults.find((r) => r.scenario.id === activeId) ?? scenarioResults[scenarioResults.length - 1];
 
   // KPIs from active scenario
   const lastRow = active.projection[active.projection.length - 1];
