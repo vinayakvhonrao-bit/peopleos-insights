@@ -131,7 +131,7 @@ function PlanningPage() {
             label="Ending HC (Jun 27)"
             value={fmtNum(lastRow.endingHC)}
             hint={`${lastRow.endingHC >= baselineLast.endingHC ? "+" : ""}${fmtNum(lastRow.endingHC - baselineLast.endingHC)} vs baseline`}
-            tone={lastRow.endingHC > baselineLast.endingHC ? "warn" : "neutral"}
+            tone={lastRow.endingHC > baselineLast.endingHC ? "warn" : "default"}
           />
           <KpiCard label="Monthly Burn" value={fmtUSD(lastRow.fullyBurdened)} hint="Fully burdened" />
           <KpiCard
