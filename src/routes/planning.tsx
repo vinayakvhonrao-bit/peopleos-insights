@@ -634,7 +634,7 @@ function ExecutiveSummary({ scenarioResults }: { scenarioResults: Array<{ scenar
     const flagged = r.events.filter(flagNeedsApproval);
     const usHires = r.events.filter((e) => e.kind === "Hire" && (e.location === "SF" || e.location === "San Jose"))
       .reduce((s, e) => s + (e as HireEvent).count, 0);
-    return { name: r.scenario.name, last, total, hcDelta, burnDelta, hcPct, costPct, topDept, flagged, usHires };
+    return { name: r.scenario.name, last, total, hcDelta, burnDelta, hcPct, costPct, topDept, flagged, usHires, events: r.events };
   });
 
   const mostHc = [...summaries].sort((a, b) => b.hcDelta - a.hcDelta)[0];
