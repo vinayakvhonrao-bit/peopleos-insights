@@ -4,8 +4,11 @@ import {
   PAYROLL, EMPLOYEES, SCENARIOS, computeScenario, DEPARTMENTS, monthlyRunRate,
   fmtUSD, fmtNum, fmtPct,
 } from "@/lib/data";
-import { Sparkles, AlertTriangle, ShieldCheck } from "lucide-react";
-import { useMemo } from "react";
+import { Sparkles, AlertTriangle, ShieldCheck, Loader2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { generateInsights, type InsightsInput } from "@/lib/insights.functions";
 
 export const Route = createFileRoute("/insights")({
   head: () => ({
@@ -28,10 +31,47 @@ function InsightsPage() {
   const growth = computeScenario(SCENARIOS[1]);
   const runRate = monthlyRunRate();
   const intlPct = EMPLOYEES.filter((e) => ["Toronto","London","Bangalore"].includes(e.location)).length / EMPLOYEES.length;
+  const consBurn = conservative.monthlyPayroll.reduce((s, m) => s + m.cost, 0);
+  const growthBurn = growth.monthlyPayroll.reduce((s, m) => s + m.cost, 0);
 
   const topDeptGrowth = DEPARTMENTS
     .map((d) => ({ d, delta: growth.byDepartment[d].deltaCost }))
     .sort((a, b) => b.delta - a.delta)[0];
+
+  const generateFn = useServerFn(generateInsights);
+  const [commentary, setCommentary] = useState<string>("");
+  const mutation = useMutation({
+    mutationFn: (input: InsightsInput) => generateFn({ data: input }),
+    onSuccess: (res) => {
+      if (res.ok) setCommentary(res.commentary);
+      else setCommentary(`⚠️ ${res.error}`);
+    },
+  });
+
+  const runAi = () => {
+    mutation.mutate({
+      period: "2026-06-15 (semi-monthly)",
+      activeWorkers: EMPLOYEES.filter((e) => e.status === "Active").length,
+      totalWorkers: EMPLOYEES.length,
+      monthlyRunRateUSD: runRate,
+      intlPct,
+      anomalyCount: anomalies.length,
+      anomalyBreakdown: Object.entries(byType).map(([type, count]) => ({ type, count })),
+      conservative: {
+        endingHeadcount: conservative.endingHeadcount,
+        annualCompUSD: conservative.annualCompUSD,
+        percentDelta: conservative.percentDelta,
+        cumulativeBurnUSD: consBurn,
+      },
+      growth: {
+        endingHeadcount: growth.endingHeadcount,
+        annualCompUSD: growth.annualCompUSD,
+        percentDelta: growth.percentDelta,
+        cumulativeBurnUSD: growthBurn,
+      },
+      topGrowthDept: { dept: topDeptGrowth.d, deltaCost: topDeptGrowth.delta },
+    });
+  };
 
   return (
     <AppShell title="AI Insights · Executive Commentary" subtitle="Bounded AI — summarizes structured outputs only">
@@ -45,22 +85,52 @@ function InsightsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <SectionCard title="Executive Summary — CFO / CHRO Brief">
-          <div className="prose prose-sm max-w-none text-sm leading-relaxed">
-            <p>
-              As of the 2026-06-15 semi-monthly period, NeoCloud has <strong>{fmtNum(EMPLOYEES.filter(e => e.status === "Active").length)} active workers</strong> across {fmtNum(EMPLOYEES.length)} total worker records. Burdened monthly payroll run rate is <strong>{fmtUSD(runRate)}</strong>, with international workforce representing <strong>{fmtPct(intlPct)}</strong> of headcount.
-            </p>
-            <p>
-              The Conservative IPO Plan ends FY at <strong>{fmtNum(conservative.endingHeadcount)}</strong> workers and <strong>{fmtUSD(conservative.annualCompUSD)}</strong> annual comp ({fmtPct(conservative.percentDelta)} vs. baseline). The AI Growth Plan ends at <strong>{fmtNum(growth.endingHeadcount)}</strong> and <strong>{fmtUSD(growth.annualCompUSD)}</strong> ({fmtPct(growth.percentDelta)} vs. baseline), driven primarily by <strong>{topDeptGrowth.d}</strong> hiring.
-            </p>
-            <p>
-              Control posture is acceptable for IPO readiness with <strong>{fmtNum(anomalies.length)}</strong> open payroll exceptions to clear before sign-off. No anomaly is yet material to the period total burdened cost.
-            </p>
-            <p className="text-xs text-muted-foreground mt-3">
-              Generated from deterministic metrics. Drafting model: Lovable AI Gateway (Gemini 3 Flash class). No employee names referenced; employee IDs used only where required for control follow-up.
+      <SectionCard
+        title="AI-Generated Executive Brief"
+        description="Live call to Lovable AI Gateway (google/gemini-2.5-flash). Inputs: aggregated KPIs only. No PII."
+        actions={
+          <button
+            onClick={runAi}
+            disabled={mutation.isPending}
+            className="text-xs px-3 py-1.5 bg-primary text-primary-foreground rounded-md inline-flex items-center gap-1.5 hover:bg-primary/90 disabled:opacity-60"
+          >
+            {mutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+            {commentary ? "Regenerate" : "Generate Commentary"}
+          </button>
+        }
+      >
+        {!commentary && !mutation.isPending && (
+          <div className="text-sm text-muted-foreground py-6 text-center border border-dashed border-border rounded-md">
+            Click <strong>Generate Commentary</strong> to call the AI Gateway with the deterministic metrics below.
+          </div>
+        )}
+        {mutation.isPending && (
+          <div className="text-sm text-muted-foreground py-6 text-center inline-flex items-center justify-center gap-2 w-full">
+            <Loader2 className="h-4 w-4 animate-spin" /> Generating executive brief…
+          </div>
+        )}
+        {commentary && (
+          <div className="prose prose-sm max-w-none text-sm leading-relaxed whitespace-pre-wrap">
+            {renderMarkdownLite(commentary)}
+            <p className="text-xs text-muted-foreground mt-4 not-prose">
+              Generated by Lovable AI Gateway. Re-run for a fresh paraphrase — underlying numbers do not change.
             </p>
           </div>
+        )}
+      </SectionCard>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <SectionCard title="Deterministic Inputs Surfaced to AI">
+          <ul className="text-sm space-y-1.5">
+            <li><strong>Period:</strong> 2026-06-15 (semi-monthly)</li>
+            <li><strong>Active workers:</strong> {fmtNum(EMPLOYEES.filter(e => e.status === "Active").length)} of {fmtNum(EMPLOYEES.length)}</li>
+            <li><strong>Monthly run rate:</strong> {fmtUSD(runRate)}</li>
+            <li><strong>International mix:</strong> {fmtPct(intlPct)}</li>
+            <li><strong>Anomalies flagged:</strong> {fmtNum(anomalies.length)}</li>
+            <li><strong>Conservative 12-mo burn:</strong> {fmtUSD(consBurn)} · ending HC {fmtNum(conservative.endingHeadcount)}</li>
+            <li><strong>Growth 12-mo burn:</strong> {fmtUSD(growthBurn)} · ending HC {fmtNum(growth.endingHeadcount)}</li>
+            <li><strong>Top growth dept:</strong> {topDeptGrowth.d} ({fmtUSD(topDeptGrowth.delta)})</li>
+          </ul>
         </SectionCard>
 
         <SectionCard title="Payroll Anomaly Detection" description={`${anomalies.length} exceptions flagged this period`}>
@@ -70,55 +140,29 @@ function InsightsPage() {
                 <AlertTriangle className="h-4 w-4 mt-0.5 text-amber-700 shrink-0" />
                 <div className="flex-1">
                   <div className="font-medium">{k}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    {ruleExplanation(k)}
-                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{ruleExplanation(k)}</div>
                 </div>
                 <span className="text-xs font-semibold tabular-nums text-amber-800 bg-amber-50 rounded px-2 py-0.5 ring-1 ring-inset ring-amber-200">{v}</span>
               </li>
             ))}
           </ul>
         </SectionCard>
-
-        <SectionCard title="Scenario Commentary">
-          <div className="text-sm space-y-3 leading-relaxed">
-            <p>
-              <strong>Conservative IPO Plan</strong> adds {fmtNum(SCENARIOS[0].hires.reduce((s, h) => s + h.count, 0))} hires across 12 months with disciplined emphasis on Engineering and GPU Cloud. Projected ending headcount of {fmtNum(conservative.endingHeadcount)} keeps annual comp growth bounded to {fmtPct(conservative.percentDelta)}.
-            </p>
-            <p>
-              <strong>AI Growth Plan</strong> adds {fmtNum(SCENARIOS[1].hires.reduce((s, h) => s + h.count, 0))} hires and front-loads GPU Cloud capacity with {fmtNum(SCENARIOS[1].hires.filter(h => h.department === "GPU Cloud").reduce((s, h) => s + h.count, 0))} GPU Cloud roles. Material P&L impact: <strong>{fmtUSD(growth.dollarDelta - conservative.dollarDelta)}</strong> incremental annual comp vs. Conservative.
-            </p>
-            <p>
-              Bangalore concentration in the Growth plan ({fmtNum(SCENARIOS[1].hires.filter(h => h.location === "Bangalore").reduce((s, h) => s + h.count, 0))} hires) materially shifts the international mix and warrants Finance + Payroll capacity review.
-            </p>
-          </div>
-        </SectionCard>
-
-        <SectionCard title="Key Workforce & Payroll Risks">
-          <ol className="text-sm list-decimal pl-5 space-y-2">
-            <li><span className="font-medium">Compensation band drift.</span> {fmtNum(EMPLOYEES.filter(e => e.bandStatus === "Above Band").length)} workers are above band; refresh band review before next merit cycle.</li>
-            <li><span className="font-medium">Termination Pending in payroll.</span> {fmtNum(EMPLOYEES.filter(e => e.status === "Termination Pending").length)} workers are still included this period — confirm last-day overrides with People Ops.</li>
-            <li><span className="font-medium">International payroll variance.</span> Bangalore PF and UK NI calculations are simplified in this preview. Reconcile against local provider statements before posting.</li>
-            <li><span className="font-medium">Scenario divergence.</span> The Growth plan's monthly run rate exits 12 months at <strong>{fmtUSD(growth.monthlyRunRateUSD)}</strong> vs. <strong>{fmtUSD(conservative.monthlyRunRateUSD)}</strong> — Finance to align with FP&A model.</li>
-            <li><span className="font-medium">Data quality.</span> Manager assignment, cost center, and job profile coverage are 100% in the prototype; Workday migration should preserve these as required fields.</li>
-          </ol>
-        </SectionCard>
       </div>
-
-      <SectionCard title="Generation Trigger"
-        description="Outputs above are derived deterministically and re-summarized on demand. AI never authors numbers."
-        actions={
-          <button className="text-xs px-3 py-1.5 bg-primary text-primary-foreground rounded-md inline-flex items-center gap-1.5 hover:bg-primary/90">
-            <Sparkles className="h-3 w-3" /> Regenerate Commentary
-          </button>
-        }
-      >
-        <div className="text-xs text-muted-foreground">
-          Inputs surfaced to the model: aggregated KPIs, scenario results, anomaly type/counts. PII excluded. Worker names are not passed to the model; employee IDs are passed only when control follow-up requires identification.
-        </div>
-      </SectionCard>
     </AppShell>
   );
+}
+
+function renderMarkdownLite(text: string) {
+  // minimal: split paragraphs, bold **x**
+  return text.split(/\n{2,}/).map((para, i) => (
+    <p key={i}>
+      {para.split(/(\*\*[^*]+\*\*)/g).map((chunk, j) =>
+        chunk.startsWith("**") && chunk.endsWith("**")
+          ? <strong key={j}>{chunk.slice(2, -2)}</strong>
+          : <span key={j}>{chunk}</span>
+      )}
+    </p>
+  ));
 }
 
 function ruleExplanation(rule: string): string {

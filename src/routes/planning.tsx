@@ -24,6 +24,9 @@ function PlanningPage() {
   const [activeId, setActiveId] = useState(SCENARIOS[0].id);
   const active = results.find((r) => r.scenario.id === activeId)!;
 
+  const consBurn = results[0].result.monthlyPayroll.reduce((s, m) => s + m.cost, 0);
+  const growthBurn = results[1].result.monthlyPayroll.reduce((s, m) => s + m.cost, 0);
+
   const combinedHc = results[0].result.monthlyHeadcount.map((m, i) => ({
     month: m.month,
     Conservative: m.headcount,
@@ -42,12 +45,14 @@ function PlanningPage() {
 
   return (
     <AppShell title="Workforce Planning Scenarios" subtitle="Strategic Finance · People Planning">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        <KpiCard label="Saved Scenarios" value={fmtNum(SCENARIOS.length)} hint="Owned by CFO / CHRO" />
-        <KpiCard label="Baseline Active Headcount" value={fmtNum(results[0].result.baselineHeadcount)} />
-        <KpiCard label="Conservative — Ending HC" value={fmtNum(results[0].result.endingHeadcount)} hint={`Δ ${fmtPct(results[0].result.percentDelta)} cost`} />
-        <KpiCard label="Growth — Ending HC" value={fmtNum(results[1].result.endingHeadcount)} hint={`Δ ${fmtPct(results[1].result.percentDelta)} cost`} tone="warn" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 mb-5">
+        <KpiCard label="Baseline Active HC" value={fmtNum(results[0].result.baselineHeadcount)} />
+        <KpiCard label="Conservative — Ending HC" value={fmtNum(results[0].result.endingHeadcount)} hint={`Δ ${fmtPct(results[0].result.percentDelta)} annual comp`} />
+        <KpiCard label="Conservative — 12-Mo Burn" value={fmtUSD(consBurn)} hint="Cumulative payroll cost" />
+        <KpiCard label="Growth — Ending HC" value={fmtNum(results[1].result.endingHeadcount)} hint={`Δ ${fmtPct(results[1].result.percentDelta)} annual comp`} tone="warn" />
+        <KpiCard label="Growth — 12-Mo Burn" value={fmtUSD(growthBurn)} hint={`+${fmtUSD(growthBurn - consBurn)} vs Conservative`} tone="warn" />
       </div>
+
 
       <SectionCard title="Scenario Comparison" description="12-month projection ending Jun 2027">
         <div className="overflow-x-auto">
