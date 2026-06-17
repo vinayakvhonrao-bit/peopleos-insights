@@ -20,7 +20,6 @@ export interface FDMState {
   costCenters: FDMRow[];
   compGrades: FDMRow[];
   payGroups: FDMRow[];
-  positions: FDMRow[];
   jobLevels: FDMRow[];
 }
 
