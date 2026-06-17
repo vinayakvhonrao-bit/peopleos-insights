@@ -837,6 +837,18 @@ function AddEventDialog({ scenarioId, onCreate, onClose }: { scenarioId: string;
                 <SelectContent>{ATTR_TYPES.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
               </Select>
             </Field>
+            <Field label="Attrition %">
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number" min={0} max={100} step="0.5"
+                  value={attritionPct}
+                  onChange={(e) => setAttritionPct(Number(e.target.value))}
+                />
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  ≈ {termCount} of {deptHC} in {department}
+                </span>
+              </div>
+            </Field>
             {attrType === "Backfill required" && (
               <Field label="Backfill Month">
                 <Select value={backfillMonth} onValueChange={(v) => setBackfillMonth(v as MonthLabel)}>
