@@ -82,8 +82,9 @@ function HomePage() {
           <div className="text-[11px] uppercase tracking-[0.18em] text-white/70">Monday, June 15, 2026</div>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight">Your people data at a glance</h2>
           <p className="mt-1.5 text-sm text-white/80">
-            {fmtNum(active)} active workers · {fmtNum(contractors)} contractors ·{" "}
-            {inProgressTerms > 0 ? `${fmtNum(inProgressTerms)} in-progress terminations` : "no in-progress terminations"}.
+            {fmtNum(total)} total workers · {fmtNum(active)} active · {fmtNum(onLeave)} on leave ·{" "}
+            {fmtNum(contractors)} contractors ·{" "}
+            {inProgressTerms > 0 ? `${fmtNum(inProgressTerms)} termination pending` : "no terminations pending"}.
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
             <Link
