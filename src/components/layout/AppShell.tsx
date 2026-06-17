@@ -1,6 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  Home,
   LayoutDashboard,
   Users,
   TrendingUp,
