@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell, SectionCard, KpiCard } from "@/components/layout/AppShell";
 import {
-  SCENARIOS, DEPARTMENTS, LOCATION_LIST, LEVEL_LIST,
+  SCENARIOS, DEPARTMENTS, LOCATION_LIST, LEVEL_LIST, EMPLOYEES,
   fmtUSD, fmtNum, fmtPct, type Department, type Location, type Level,
 } from "@/lib/data";
 import {
@@ -368,7 +368,7 @@ function EventsTable({
 
 function describeEvent(e: PlanEvent): string {
   if (e.kind === "Hire") return `${e.count}× ${e.level} ${e.department} @ ${e.location} · ${fmtUSD(e.annualSalaryUSD)}/yr`;
-  if (e.kind === "Termination") return `${e.count}× ${e.level} ${e.department} @ ${e.location} · ${e.attritionType}${e.backfillMonth ? ` → backfill ${e.backfillMonth}` : ""}`;
+  if (e.kind === "Termination") return `${e.count}× ${e.level} ${e.department} @ ${e.location} · ${e.attritionType}${e.attritionPct != null ? ` (${e.attritionPct}%)` : ""}${e.backfillMonth ? ` → backfill ${e.backfillMonth}` : ""}`;
   if (e.kind === "Transfer") return `${e.worker} · ${e.fromDept}/${e.fromLocation} → ${e.toDept}/${e.toLocation} · Δ comp ${fmtPct(e.compChangePct)}`;
   return `${e.population} · ${e.changeType} +${fmtPct(e.increasePct)} → ${fmtUSD(e.newAnnualSalaryUSD)} (${e.affectedCount} ppl)`;
 }
@@ -722,6 +722,10 @@ function AddEventDialog({ scenarioId, onCreate, onClose }: { scenarioId: string;
   // Term-specific
   const [attrType, setAttrType] = useState<AttritionType>("Planned termination");
   const [backfillMonth, setBackfillMonth] = useState<MonthLabel>(MONTHS[5]);
+  const [attritionPct, setAttritionPct] = useState<number>(5);
+
+  const deptHC = EMPLOYEES.filter((e) => e.department === department).length;
+  const termCount = Math.max(1, Math.ceil((deptHC * attritionPct) / 100));
 
   // Transfer-specific
   const [toDept, setToDept] = useState<Department>("GPU Cloud");
@@ -742,8 +746,8 @@ function AddEventDialog({ scenarioId, onCreate, onClose }: { scenarioId: string;
       e = { ...baseFields, kind: "Hire", department, location, level, startMonth: month, count, annualSalaryUSD: salary };
     } else if (kind === "Termination") {
       e = {
-        ...baseFields, kind: "Termination", department, location, level, month, count,
-        attritionType: attrType, exitingSalaryUSD: salary,
+        ...baseFields, kind: "Termination", department, location, level, month, count: termCount,
+        attritionPct, attritionType: attrType, exitingSalaryUSD: salary,
         ...(attrType === "Backfill required" ? { backfillMonth } : {}),
       };
     } else if (kind === "Transfer") {
@@ -812,7 +816,7 @@ function AddEventDialog({ scenarioId, onCreate, onClose }: { scenarioId: string;
           </Select>
         </Field>
 
-        {kind !== "Transfer" && kind !== "Compensation" && (
+        {kind === "Hire" && (
           <Field label="Count">
             <Input type="number" min={1} value={count} onChange={(e) => setCount(Number(e.target.value))} />
           </Field>
@@ -832,6 +836,18 @@ function AddEventDialog({ scenarioId, onCreate, onClose }: { scenarioId: string;
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>{ATTR_TYPES.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
               </Select>
+            </Field>
+            <Field label="Attrition %">
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number" min={0} max={100} step="0.5"
+                  value={attritionPct}
+                  onChange={(e) => setAttritionPct(Number(e.target.value))}
+                />
+                <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  ≈ {termCount} of {deptHC} in {department}
+                </span>
+              </div>
             </Field>
             {attrType === "Backfill required" && (
               <Field label="Backfill Month">
