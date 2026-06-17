@@ -27,6 +27,7 @@ export interface Employee {
   costCenter: string;
   supervisoryOrg: string;
   bandStatus: "Below Band" | "Within Band" | "Above Band";
+  positionId: string;
 }
 
 const JOB_FAMILY: Record<string, string> = {
