@@ -28,6 +28,17 @@ function Dashboard() {
   const intlPct = (intl / total) * 100;
   const anomalies = PAYROLL.filter((r) => r.anomaly).length;
   const runRate = monthlyRunRate();
+  const termPending = EMPLOYEES.filter((e) => e.status === "Termination Pending").length;
+  const byStatus = [
+    { name: "Active", count: EMPLOYEES.filter((e) => e.status === "Active").length },
+    { name: "On Leave", count: EMPLOYEES.filter((e) => e.status === "On Leave").length },
+    { name: "Termination Pending", count: EMPLOYEES.filter((e) => e.status === "Termination Pending").length },
+    { name: "Contractor", count: EMPLOYEES.filter((e) => e.status === "Contractor").length },
+  ];
+  const termByDept = DEPARTMENTS.map((d) => ({
+    name: d,
+    count: EMPLOYEES.filter((e) => e.department === d && e.status === "Termination Pending").length,
+  }));
 
   const byDept = DEPARTMENTS.map((d) => ({
     name: d,
