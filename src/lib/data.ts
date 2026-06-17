@@ -406,7 +406,7 @@ export function buildPayroll(): PayrollRow[] {
     const idNum = Number(e.id.replace(/\D/g, ""));
     const jitter = ((idNum * 9301 + 49297) % 233280) / 233280;
     let gross = semi;
-    if (jitter < 0.02) gross = semi * 1.25;
+    if (jitter < 0.005) gross = semi * 1.25;
     if (!anomaly && gross > semi * 1.2) anomaly = "Pay deviation > 20% from expected";
 
     const hire = new Date(e.hireDate);
