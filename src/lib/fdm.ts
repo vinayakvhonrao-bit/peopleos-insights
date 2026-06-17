@@ -2,7 +2,7 @@
 // Workday concept: Setup / Tenant Configuration. Persisted to localStorage.
 import { useSyncExternalStore } from "react";
 
-export type FDMEntity = "departments" | "locations" | "jobProfiles" | "costCenters" | "compGrades" | "payGroups" | "positions" | "jobLevels";
+export type FDMEntity = "departments" | "locations" | "jobProfiles" | "costCenters" | "compGrades" | "payGroups" | "jobLevels";
 
 export interface FDMRow {
   id: string;
