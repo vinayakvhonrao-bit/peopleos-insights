@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 
-type NavItem = { to: string; label: string; icon: typeof Users; exact?: boolean };
+type NavItem = { to: string; label: string; icon: typeof Users };
 const NAV: NavItem[] = [
   { to: "/setup", label: "Foundation Data", icon: Settings },
   { to: "/workforce", label: "Workforce Explorer", icon: Users },
