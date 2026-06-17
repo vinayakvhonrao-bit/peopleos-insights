@@ -97,7 +97,7 @@ const LEVELS: Level[] = ["IC3", "IC4", "IC5", "IC6", "M3", "M4", "M5", "M6"];
 const LEVEL_WEIGHTS = [0.20, 0.25, 0.18, 0.08, 0.12, 0.10, 0.05, 0.02];
 
 const STATUSES: Status[] = ["Active", "On Leave", "Termination Pending", "Contractor"];
-const STATUS_WEIGHTS = [0.88, 0.04, 0.02, 0.06];
+const STATUS_WEIGHTS = [0.90, 0.04, 0.005, 0.055];
 
 function weighted<T>(items: T[], weights: number[]): T {
   const r = rand();
