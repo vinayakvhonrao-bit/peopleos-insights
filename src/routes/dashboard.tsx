@@ -73,7 +73,7 @@ function Dashboard() {
         <KpiCard label="Monthly Payroll Run Rate" value={fmtUSD(runRate)} hint="Burdened, USD" />
         <KpiCard label="International HC %" value={`${intlPct.toFixed(1)}%`} hint="Toronto, London, Bangalore" />
         <KpiCard label="Payroll Anomalies" value={fmtNum(anomalies)} tone="warn" hint="Current preview period" />
-        <KpiCard label="Saved Plans" value={fmtNum(SCENARIOS.length)} hint="Workforce scenarios" />
+        <KpiCard label="Termination Pending" value={fmtNum(termPending)} tone="warn" hint="Requires action" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
