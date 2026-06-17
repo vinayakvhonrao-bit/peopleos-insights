@@ -47,6 +47,12 @@ function Dashboard() {
   }));
 
   const conservative = computeScenario(SCENARIOS[0]);
+  const growth = computeScenario(SCENARIOS[1]);
+  const projection = conservative.monthlyHeadcount.map((row, i) => ({
+    month: row.month,
+    conservative: row.headcount,
+    growth: growth.monthlyHeadcount[i]?.headcount ?? null,
+  }));
 
   return (
     <AppShell title="Executive Dashboard" subtitle="People Operations · IPO Readiness">
@@ -104,15 +110,17 @@ function Dashboard() {
           </div>
         </SectionCard>
 
-        <SectionCard title="12-Month Projected Headcount" description={`Source: ${SCENARIOS[0].name}`}>
+        <SectionCard title="12-Month Projected Headcount" description={`${SCENARIOS[0].name} vs ${SCENARIOS[1].name}`}>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={conservative.monthlyHeadcount} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
+              <LineChart data={projection} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
                 <CartesianGrid stroke="#eef2f6" vertical={false} />
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="#94a3b8" />
                 <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" domain={["auto","auto"]} />
                 <Tooltip />
-                <Line type="monotone" dataKey="headcount" stroke="#1e3a5f" strokeWidth={2} dot={false} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Line type="monotone" dataKey="conservative" name="Conservative IPO Plan" stroke="#1e3a5f" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="growth" name="AI Growth Plan" stroke="#cf8a3a" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
