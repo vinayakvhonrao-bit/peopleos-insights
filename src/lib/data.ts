@@ -210,8 +210,8 @@ function generateEmployees(n: number): Employee[] {
     if (adjUSD < band.low * LOC_MULT[location] * 0.95) bandStatus = "Below Band";
     else if (adjUSD > band.high * LOC_MULT[location] * 1.02) bandStatus = "Above Band";
     // Force some band exceptions
-    if (rand() < 0.04) bandStatus = "Above Band";
-    if (rand() < 0.03) bandStatus = "Below Band";
+    if (rand() < 0.01) bandStatus = "Above Band";
+    if (rand() < 0.01) bandStatus = "Below Band";
 
     const jobProfile = pick(JOB_PROFILES[department]);
 
