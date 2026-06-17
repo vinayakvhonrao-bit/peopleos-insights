@@ -368,7 +368,7 @@ function EventsTable({
 
 function describeEvent(e: PlanEvent): string {
   if (e.kind === "Hire") return `${e.count}× ${e.level} ${e.department} @ ${e.location} · ${fmtUSD(e.annualSalaryUSD)}/yr`;
-  if (e.kind === "Termination") return `${e.count}× ${e.level} ${e.department} @ ${e.location} · ${e.attritionType}${e.backfillMonth ? ` → backfill ${e.backfillMonth}` : ""}`;
+  if (e.kind === "Termination") return `${e.count}× ${e.level} ${e.department} @ ${e.location} · ${e.attritionType}${e.attritionPct != null ? ` (${e.attritionPct}%)` : ""}${e.backfillMonth ? ` → backfill ${e.backfillMonth}` : ""}`;
   if (e.kind === "Transfer") return `${e.worker} · ${e.fromDept}/${e.fromLocation} → ${e.toDept}/${e.toLocation} · Δ comp ${fmtPct(e.compChangePct)}`;
   return `${e.population} · ${e.changeType} +${fmtPct(e.increasePct)} → ${fmtUSD(e.newAnnualSalaryUSD)} (${e.affectedCount} ppl)`;
 }
