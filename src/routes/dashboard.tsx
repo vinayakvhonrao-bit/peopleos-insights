@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell, KpiCard, SectionCard } from "@/components/layout/AppShell";
 import {
-  EMPLOYEES, DEPARTMENTS, LOCATION_LIST, LEVEL_LIST, PAYROLL, SCENARIOS,
-  monthlyRunRate, fmtUSD, fmtNum, computeScenario,
+  EMPLOYEES, DEPARTMENTS, LOCATION_LIST, LEVEL_LIST, PAYROLL,
+  monthlyRunRate, fmtUSD, fmtNum,
 } from "@/lib/data";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
-  LineChart, Line, PieChart, Pie, Cell, Legend,
+  PieChart, Pie, Cell, Legend,
 } from "recharts";
 
 export const Route = createFileRoute("/dashboard")({
