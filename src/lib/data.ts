@@ -415,7 +415,7 @@ export function buildPayroll(): PayrollRow[] {
       if (!anomaly) anomaly = "New hire mid-period — prorate review";
     }
     if (!anomaly && e.bandStatus === "Above Band") anomaly = "Salary above compensation band";
-    if (!anomaly && Math.abs(gross - deptAvg[e.department]) / deptAvg[e.department] > 0.6) {
+    if (!anomaly && Math.abs(gross - deptAvg[e.department]) / deptAvg[e.department] > 2.0) {
       anomaly = "Department-level cost deviation";
     }
 
