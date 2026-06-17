@@ -69,6 +69,33 @@ const SEED: FDMState = {
     { id: "g7", code: "M5", name: "M5 — Director", attributes: { minUSD: "290000", midUSD: "350000", maxUSD: "410000" }, active: true, createdAt: "2024-01-15" },
     { id: "g8", code: "M6", name: "M6 — Senior Director", attributes: { minUSD: "360000", midUSD: "440000", maxUSD: "520000" }, active: true, createdAt: "2024-01-15" },
   ],
+  payGroups: [
+    { id: "pg1", code: "US-SEMI", name: "US Semi-Monthly", attributes: { country: "US", currency: "USD", frequency: "Semi-Monthly", payDays: "15th & last" }, active: true, createdAt: "2024-01-15" },
+    { id: "pg2", code: "US-HRLY", name: "US Hourly Biweekly", attributes: { country: "US", currency: "USD", frequency: "Biweekly", payDays: "Every other Friday" }, active: true, createdAt: "2024-01-15" },
+    { id: "pg3", code: "CA-BIW", name: "Canada Biweekly", attributes: { country: "CA", currency: "CAD", frequency: "Biweekly", payDays: "Every other Friday" }, active: true, createdAt: "2024-01-15" },
+    { id: "pg4", code: "UK-MTH", name: "UK Monthly", attributes: { country: "GB", currency: "GBP", frequency: "Monthly", payDays: "Last working day" }, active: true, createdAt: "2024-01-15" },
+    { id: "pg5", code: "IN-MTH", name: "India Monthly", attributes: { country: "IN", currency: "INR", frequency: "Monthly", payDays: "Last working day" }, active: true, createdAt: "2024-01-15" },
+  ],
+  positions: [
+    { id: "p1", code: "P-00142", name: "Staff Software Engineer — Compute Platform", attributes: { jobProfile: "STAFF", department: "ENG", location: "SF", headcount: "1", status: "Filled" }, active: true, createdAt: "2024-02-01" },
+    { id: "p2", code: "P-00187", name: "GPU Infrastructure Engineer", attributes: { jobProfile: "GPUI", department: "GPU", location: "SJ", headcount: "1", status: "Open" }, active: true, createdAt: "2024-03-12" },
+    { id: "p3", code: "P-00203", name: "Engineering Manager — SRE", attributes: { jobProfile: "EM", department: "ENG", location: "REMUS", headcount: "1", status: "Filled" }, active: true, createdAt: "2024-03-20" },
+    { id: "p4", code: "P-00221", name: "Datacenter Engineer II", attributes: { jobProfile: "DCE", department: "ONP", location: "SJ", headcount: "2", status: "Open" }, active: true, createdAt: "2024-04-05" },
+    { id: "p5", code: "P-00244", name: "People Partner — Engineering", attributes: { jobProfile: "PP", department: "GNA", location: "SF", headcount: "1", status: "Filled" }, active: true, createdAt: "2024-04-18" },
+    { id: "p6", code: "P-00259", name: "Senior Recruiter — Tech", attributes: { jobProfile: "REC", department: "GNA", location: "REMUS", headcount: "1", status: "Open" }, active: true, createdAt: "2024-05-02" },
+    { id: "p7", code: "P-00271", name: "Finance Analyst — FP&A", attributes: { jobProfile: "FA", department: "GNA", location: "TOR", headcount: "1", status: "Filled" }, active: true, createdAt: "2024-05-15" },
+  ],
+  jobLevels: [
+    { id: "lv1", code: "L3", name: "L3 — Engineer", attributes: { track: "IC", grade: "IC3", yearsTypical: "2-4" }, active: true, createdAt: "2024-01-15" },
+    { id: "lv2", code: "L4", name: "L4 — Senior Engineer", attributes: { track: "IC", grade: "IC3", yearsTypical: "4-7" }, active: true, createdAt: "2024-01-15" },
+    { id: "lv3", code: "L5", name: "L5 — Staff Engineer", attributes: { track: "IC", grade: "IC4", yearsTypical: "7-10" }, active: true, createdAt: "2024-01-15" },
+    { id: "lv4", code: "L6", name: "L6 — Principal Engineer", attributes: { track: "IC", grade: "IC5", yearsTypical: "10+" }, active: true, createdAt: "2024-01-15" },
+    { id: "lv5", code: "L7", name: "L7 — Distinguished Engineer", attributes: { track: "IC", grade: "IC6", yearsTypical: "15+" }, active: true, createdAt: "2024-01-15" },
+    { id: "lv6", code: "M4", name: "M4 — Manager", attributes: { track: "Management", grade: "M3", yearsTypical: "8+" }, active: true, createdAt: "2024-01-15" },
+    { id: "lv7", code: "M5", name: "M5 — Senior Manager", attributes: { track: "Management", grade: "M4", yearsTypical: "10+" }, active: true, createdAt: "2024-01-15" },
+    { id: "lv8", code: "M6", name: "M6 — Director", attributes: { track: "Management", grade: "M5", yearsTypical: "12+" }, active: true, createdAt: "2024-01-15" },
+    { id: "lv9", code: "M7", name: "M7 — Senior Director", attributes: { track: "Management", grade: "M6", yearsTypical: "15+" }, active: true, createdAt: "2024-01-15" },
+  ],
 };
 
 function load(): FDMState {
