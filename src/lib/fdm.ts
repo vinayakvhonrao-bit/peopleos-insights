@@ -209,4 +209,37 @@ export const ENTITY_META: Record<FDMEntity, {
       { key: "maxUSD", label: "Max (USD)", placeholder: "190000" },
     ],
   },
+  payGroups: {
+    label: "Pay Groups",
+    singular: "Pay Group",
+    workdayObject: "Pay Group",
+    attributeFields: [
+      { key: "country", label: "Country", placeholder: "US" },
+      { key: "currency", label: "Currency", placeholder: "USD" },
+      { key: "frequency", label: "Frequency", placeholder: "Semi-Monthly / Biweekly / Monthly" },
+      { key: "payDays", label: "Pay Days", placeholder: "15th & last" },
+    ],
+  },
+  positions: {
+    label: "Positions",
+    singular: "Position",
+    workdayObject: "Position (Position Management)",
+    attributeFields: [
+      { key: "jobProfile", label: "Job Profile", placeholder: "STAFF" },
+      { key: "department", label: "Department", placeholder: "ENG" },
+      { key: "location", label: "Location", placeholder: "SF" },
+      { key: "headcount", label: "Headcount", placeholder: "1" },
+      { key: "status", label: "Status", placeholder: "Filled / Open / Frozen" },
+    ],
+  },
+  jobLevels: {
+    label: "Job Levels",
+    singular: "Job Level",
+    workdayObject: "Management Level / Job Level",
+    attributeFields: [
+      { key: "track", label: "Career Track", placeholder: "IC / Management" },
+      { key: "grade", label: "Default Comp Grade", placeholder: "IC4" },
+      { key: "yearsTypical", label: "Typical Years Experience", placeholder: "7-10" },
+    ],
+  },
 };
