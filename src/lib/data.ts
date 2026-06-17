@@ -97,7 +97,7 @@ const LEVELS: Level[] = ["IC3", "IC4", "IC5", "IC6", "M3", "M4", "M5", "M6"];
 const LEVEL_WEIGHTS = [0.20, 0.25, 0.18, 0.08, 0.12, 0.10, 0.05, 0.02];
 
 const STATUSES: Status[] = ["Active", "On Leave", "Termination Pending", "Contractor"];
-const STATUS_WEIGHTS = [0.88, 0.04, 0.02, 0.06];
+const STATUS_WEIGHTS = [0.90, 0.04, 0.005, 0.055];
 
 function weighted<T>(items: T[], weights: number[]): T {
   const r = rand();
@@ -210,8 +210,8 @@ function generateEmployees(n: number): Employee[] {
     if (adjUSD < band.low * LOC_MULT[location] * 0.95) bandStatus = "Below Band";
     else if (adjUSD > band.high * LOC_MULT[location] * 1.02) bandStatus = "Above Band";
     // Force some band exceptions
-    if (rand() < 0.04) bandStatus = "Above Band";
-    if (rand() < 0.03) bandStatus = "Below Band";
+    if (rand() < 0.01) bandStatus = "Above Band";
+    if (rand() < 0.01) bandStatus = "Below Band";
 
     const jobProfile = pick(JOB_PROFILES[department]);
 
@@ -406,7 +406,7 @@ export function buildPayroll(): PayrollRow[] {
     const idNum = Number(e.id.replace(/\D/g, ""));
     const jitter = ((idNum * 9301 + 49297) % 233280) / 233280;
     let gross = semi;
-    if (jitter < 0.02) gross = semi * 1.25;
+    if (jitter < 0.005) gross = semi * 1.25;
     if (!anomaly && gross > semi * 1.2) anomaly = "Pay deviation > 20% from expected";
 
     const hire = new Date(e.hireDate);
@@ -415,7 +415,7 @@ export function buildPayroll(): PayrollRow[] {
       if (!anomaly) anomaly = "New hire mid-period — prorate review";
     }
     if (!anomaly && e.bandStatus === "Above Band") anomaly = "Salary above compensation band";
-    if (!anomaly && Math.abs(gross - deptAvg[e.department]) / deptAvg[e.department] > 0.6) {
+    if (!anomaly && Math.abs(gross - deptAvg[e.department]) / deptAvg[e.department] > 2.0) {
       anomaly = "Department-level cost deviation";
     }
 
