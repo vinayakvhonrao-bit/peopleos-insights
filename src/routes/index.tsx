@@ -14,7 +14,7 @@ import {
   Clock,
   ArrowUpRight,
 } from "lucide-react";
-import { EMPLOYEES, PAYROLL, monthlyRunRate, fmtUSD, fmtNum } from "@/lib/data";
+import { EMPLOYEES, fmtNum } from "@/lib/data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
