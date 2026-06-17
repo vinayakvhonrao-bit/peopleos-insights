@@ -47,8 +47,10 @@ const WORKLETS: Worklet[] = [
 
 function HomePage() {
   const active = EMPLOYEES.filter((e) => e.status === "Active").length;
+  const onLeave = EMPLOYEES.filter((e) => e.status === "On Leave").length;
   const contractors = EMPLOYEES.filter((e) => e.status === "Contractor").length;
   const inProgressTerms = EMPLOYEES.filter((e) => e.status === "Termination Pending").length;
+  const total = EMPLOYEES.length;
 
   const greetingName = "Iris Chen";
   const greetingTitle = "VP, People Operations";
