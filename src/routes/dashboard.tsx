@@ -57,6 +57,14 @@ function Dashboard() {
     cost: PAYROLL.filter((r) => r.department === d).reduce((s, r) => s + r.totalBurdened, 0) * 2,
   }));
 
+  const reqsByDept = [
+    { name: "Engineering", count: 12 },
+    { name: "GPU Cloud", count: 8 },
+    { name: "On-Prem", count: 3 },
+    { name: "G&A", count: 5 },
+  ];
+  const openReqs = reqsByDept.reduce((s, r) => s + r.count, 0);
+
 
   return (
     <AppShell title="Executive Dashboard" subtitle="People Operations · IPO Readiness">
