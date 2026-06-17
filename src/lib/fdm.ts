@@ -2,7 +2,7 @@
 // Workday concept: Setup / Tenant Configuration. Persisted to localStorage.
 import { useSyncExternalStore } from "react";
 
-export type FDMEntity = "departments" | "locations" | "jobProfiles" | "costCenters" | "compGrades" | "payGroups" | "positions" | "jobLevels";
+export type FDMEntity = "departments" | "locations" | "jobProfiles" | "costCenters" | "compGrades" | "payGroups" | "jobLevels";
 
 export interface FDMRow {
   id: string;
@@ -20,7 +20,6 @@ export interface FDMState {
   costCenters: FDMRow[];
   compGrades: FDMRow[];
   payGroups: FDMRow[];
-  positions: FDMRow[];
   jobLevels: FDMRow[];
 }
 
@@ -75,15 +74,6 @@ const SEED: FDMState = {
     { id: "pg3", code: "CA-BIW", name: "Canada Biweekly", attributes: { country: "CA", currency: "CAD", frequency: "Biweekly", payDays: "Every other Friday" }, active: true, createdAt: "2024-01-15" },
     { id: "pg4", code: "UK-MTH", name: "UK Monthly", attributes: { country: "GB", currency: "GBP", frequency: "Monthly", payDays: "Last working day" }, active: true, createdAt: "2024-01-15" },
     { id: "pg5", code: "IN-MTH", name: "India Monthly", attributes: { country: "IN", currency: "INR", frequency: "Monthly", payDays: "Last working day" }, active: true, createdAt: "2024-01-15" },
-  ],
-  positions: [
-    { id: "p1", code: "P-00142", name: "Staff Software Engineer — Compute Platform", attributes: { jobProfile: "STAFF", department: "ENG", location: "SF", headcount: "1", status: "Filled" }, active: true, createdAt: "2024-02-01" },
-    { id: "p2", code: "P-00187", name: "GPU Infrastructure Engineer", attributes: { jobProfile: "GPUI", department: "GPU", location: "SJ", headcount: "1", status: "Open" }, active: true, createdAt: "2024-03-12" },
-    { id: "p3", code: "P-00203", name: "Engineering Manager — SRE", attributes: { jobProfile: "EM", department: "ENG", location: "REMUS", headcount: "1", status: "Filled" }, active: true, createdAt: "2024-03-20" },
-    { id: "p4", code: "P-00221", name: "Datacenter Engineer II", attributes: { jobProfile: "DCE", department: "ONP", location: "SJ", headcount: "2", status: "Open" }, active: true, createdAt: "2024-04-05" },
-    { id: "p5", code: "P-00244", name: "People Partner — Engineering", attributes: { jobProfile: "PP", department: "GNA", location: "SF", headcount: "1", status: "Filled" }, active: true, createdAt: "2024-04-18" },
-    { id: "p6", code: "P-00259", name: "Senior Recruiter — Tech", attributes: { jobProfile: "REC", department: "GNA", location: "REMUS", headcount: "1", status: "Open" }, active: true, createdAt: "2024-05-02" },
-    { id: "p7", code: "P-00271", name: "Finance Analyst — FP&A", attributes: { jobProfile: "FA", department: "GNA", location: "TOR", headcount: "1", status: "Filled" }, active: true, createdAt: "2024-05-15" },
   ],
   jobLevels: [
     { id: "lv1", code: "L3", name: "L3 — Engineer", attributes: { track: "IC", grade: "IC3", yearsTypical: "2-4" }, active: true, createdAt: "2024-01-15" },
@@ -218,18 +208,6 @@ export const ENTITY_META: Record<FDMEntity, {
       { key: "currency", label: "Currency", placeholder: "USD" },
       { key: "frequency", label: "Frequency", placeholder: "Semi-Monthly / Biweekly / Monthly" },
       { key: "payDays", label: "Pay Days", placeholder: "15th & last" },
-    ],
-  },
-  positions: {
-    label: "Positions",
-    singular: "Position",
-    workdayObject: "Position (Position Management)",
-    attributeFields: [
-      { key: "jobProfile", label: "Job Profile", placeholder: "STAFF" },
-      { key: "department", label: "Department", placeholder: "ENG" },
-      { key: "location", label: "Location", placeholder: "SF" },
-      { key: "headcount", label: "Headcount", placeholder: "1" },
-      { key: "status", label: "Status", placeholder: "Filled / Open / Frozen" },
     ],
   },
   jobLevels: {
