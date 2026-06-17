@@ -57,13 +57,6 @@ function Dashboard() {
     cost: PAYROLL.filter((r) => r.department === d).reduce((s, r) => s + r.totalBurdened, 0) * 2,
   }));
 
-  const conservative = computeScenario(SCENARIOS[0]);
-  const growth = computeScenario(SCENARIOS[1]);
-  const projection = conservative.monthlyHeadcount.map((row, i) => ({
-    month: row.month,
-    conservative: row.headcount,
-    growth: growth.monthlyHeadcount[i]?.headcount ?? null,
-  }));
 
   return (
     <AppShell title="Executive Dashboard" subtitle="People Operations · IPO Readiness">
@@ -121,18 +114,30 @@ function Dashboard() {
           </div>
         </SectionCard>
 
-        <SectionCard title="12-Month Projected Headcount" description={`${SCENARIOS[0].name} vs ${SCENARIOS[1].name}`}>
+        <SectionCard title="Worker Status Overview" description="Active, On Leave, Termination Pending, Contractor">
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={projection} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
+              <BarChart data={byStatus} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
                 <CartesianGrid stroke="#eef2f6" vertical={false} />
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" domain={["auto","auto"]} />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#94a3b8" />
+                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" />
                 <Tooltip />
-                <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line type="monotone" dataKey="conservative" name="Conservative IPO Plan" stroke="#1e3a5f" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="growth" name="AI Growth Plan" stroke="#cf8a3a" strokeWidth={2} dot={false} />
-              </LineChart>
+                <Bar dataKey="count" fill="#8a5a3b" radius={[2,2,0,0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </SectionCard>
+
+        <SectionCard title="Termination Pending by Department" description="Requires action before next payroll cycle">
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={termByDept} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
+                <CartesianGrid stroke="#eef2f6" vertical={false} />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#94a3b8" />
+                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="count" fill="#cf8a3a" radius={[2,2,0,0]} />
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </SectionCard>
