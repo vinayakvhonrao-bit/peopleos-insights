@@ -1,12 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell, KpiCard, SectionCard } from "@/components/layout/AppShell";
 import {
-  EMPLOYEES, DEPARTMENTS, LOCATION_LIST, LEVEL_LIST, PAYROLL, SCENARIOS,
-  monthlyRunRate, fmtUSD, fmtNum, computeScenario,
+  EMPLOYEES, DEPARTMENTS, LOCATION_LIST, LEVEL_LIST, PAYROLL,
+  monthlyRunRate, fmtUSD, fmtNum,
 } from "@/lib/data";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
-  LineChart, Line, PieChart, Pie, Cell, Legend,
+  PieChart, Pie, Cell, Legend,
 } from "recharts";
 
 export const Route = createFileRoute("/dashboard")({
@@ -28,6 +28,17 @@ function Dashboard() {
   const intlPct = (intl / total) * 100;
   const anomalies = PAYROLL.filter((r) => r.anomaly).length;
   const runRate = monthlyRunRate();
+  const termPending = EMPLOYEES.filter((e) => e.status === "Termination Pending").length;
+  const byStatus = [
+    { name: "Active", count: EMPLOYEES.filter((e) => e.status === "Active").length },
+    { name: "On Leave", count: EMPLOYEES.filter((e) => e.status === "On Leave").length },
+    { name: "Termination Pending", count: EMPLOYEES.filter((e) => e.status === "Termination Pending").length },
+    { name: "Contractor", count: EMPLOYEES.filter((e) => e.status === "Contractor").length },
+  ];
+  const termByDept = DEPARTMENTS.map((d) => ({
+    name: d,
+    count: EMPLOYEES.filter((e) => e.department === d && e.status === "Termination Pending").length,
+  }));
 
   const byDept = DEPARTMENTS.map((d) => ({
     name: d,
@@ -46,13 +57,6 @@ function Dashboard() {
     cost: PAYROLL.filter((r) => r.department === d).reduce((s, r) => s + r.totalBurdened, 0) * 2,
   }));
 
-  const conservative = computeScenario(SCENARIOS[0]);
-  const growth = computeScenario(SCENARIOS[1]);
-  const projection = conservative.monthlyHeadcount.map((row, i) => ({
-    month: row.month,
-    conservative: row.headcount,
-    growth: growth.monthlyHeadcount[i]?.headcount ?? null,
-  }));
 
   return (
     <AppShell title="Executive Dashboard" subtitle="People Operations · IPO Readiness">
@@ -62,7 +66,7 @@ function Dashboard() {
         <KpiCard label="Monthly Payroll Run Rate" value={fmtUSD(runRate)} hint="Burdened, USD" />
         <KpiCard label="International HC %" value={`${intlPct.toFixed(1)}%`} hint="Toronto, London, Bangalore" />
         <KpiCard label="Payroll Anomalies" value={fmtNum(anomalies)} tone="warn" hint="Current preview period" />
-        <KpiCard label="Saved Plans" value={fmtNum(SCENARIOS.length)} hint="Workforce scenarios" />
+        <KpiCard label="Termination Pending" value={fmtNum(termPending)} tone="warn" hint="Requires action" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -110,18 +114,30 @@ function Dashboard() {
           </div>
         </SectionCard>
 
-        <SectionCard title="12-Month Projected Headcount" description={`${SCENARIOS[0].name} vs ${SCENARIOS[1].name}`}>
+        <SectionCard title="Worker Status Overview" description="Active, On Leave, Termination Pending, Contractor">
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={projection} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
+              <BarChart data={byStatus} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
                 <CartesianGrid stroke="#eef2f6" vertical={false} />
-                <XAxis dataKey="month" tick={{ fontSize: 11 }} stroke="#94a3b8" />
-                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" domain={["auto","auto"]} />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#94a3b8" />
+                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" />
                 <Tooltip />
-                <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line type="monotone" dataKey="conservative" name="Conservative IPO Plan" stroke="#1e3a5f" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="growth" name="AI Growth Plan" stroke="#cf8a3a" strokeWidth={2} dot={false} />
-              </LineChart>
+                <Bar dataKey="count" fill="#8a5a3b" radius={[2,2,0,0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </SectionCard>
+
+        <SectionCard title="Termination Pending by Department" description="Requires action before next payroll cycle">
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={termByDept} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
+                <CartesianGrid stroke="#eef2f6" vertical={false} />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#94a3b8" />
+                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="count" fill="#cf8a3a" radius={[2,2,0,0]} />
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </SectionCard>
