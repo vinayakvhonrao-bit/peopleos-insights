@@ -87,6 +87,7 @@ function WorkforcePage() {
               <tr>
                 <Th>Employee ID</Th>
                 <Th>Worker</Th>
+                <Th>Position ID</Th>
                 <Th>Job Profile</Th>
                 <Th>Supervisory Org</Th>
                 <Th>Department</Th>
@@ -110,6 +111,7 @@ function WorkforcePage() {
                 >
                   <Td className="font-mono text-xs">{e.id}</Td>
                   <Td className="font-medium">{e.name}</Td>
+                  <Td className="font-mono text-xs">{e.positionId}</Td>
                   <Td>{e.jobProfile}</Td>
                   <Td className="text-muted-foreground text-xs">{e.supervisoryOrg}</Td>
                   <Td>{e.department}</Td>
@@ -189,7 +191,7 @@ function WorkerDetailDrawer({ employee, onClose }: { employee: Employee; onClose
             <Field label="Job Profile" value={e.jobProfile} />
             <Field label="Job Family" value={e.jobFamily} />
             <Field label="Level" value={e.level} />
-            <Field label="Position ID" value={<span className="font-mono text-xs">P-{e.id.slice(1)}</span>} />
+            <Field label="Position ID" value={<span className="font-mono text-xs">{e.positionId}</span>} />
           </Section>
           <Section title="Supervisory Organization">
             <Field label="Sup Org" value={<span className="text-xs text-right">{e.supervisoryOrg}</span>} />

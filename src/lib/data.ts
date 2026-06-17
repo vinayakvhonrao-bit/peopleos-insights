@@ -27,6 +27,7 @@ export interface Employee {
   costCenter: string;
   supervisoryOrg: string;
   bandStatus: "Below Band" | "Within Band" | "Above Band";
+  positionId: string;
 }
 
 const JOB_FAMILY: Record<string, string> = {
@@ -214,6 +215,9 @@ function generateEmployees(n: number): Employee[] {
 
     const jobProfile = pick(JOB_PROFILES[department]);
 
+    const deptCode = department === "Engineering" ? "ENG" : department === "GPU Cloud" ? "GPU" : department === "On-Prem" ? "OPS" : "GA";
+    const positionId = `P-${deptCode}-${String(100001 + i).slice(1)}`;
+
     const emp: Employee = {
       id,
       firstName,
@@ -234,6 +238,7 @@ function generateEmployees(n: number): Employee[] {
       costCenter: COST_CENTERS[department],
       supervisoryOrg: "",
       bandStatus,
+      positionId,
     };
     employees.push(emp);
     if (level === "M4" || level === "M5" || level === "M6") {
