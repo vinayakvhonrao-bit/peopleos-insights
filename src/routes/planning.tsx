@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell, SectionCard, KpiCard } from "@/components/layout/AppShell";
 import {
-  SCENARIOS, DEPARTMENTS, LOCATION_LIST, LEVEL_LIST,
+  SCENARIOS, DEPARTMENTS, LOCATION_LIST, LEVEL_LIST, EMPLOYEES,
   fmtUSD, fmtNum, fmtPct, type Department, type Location, type Level,
 } from "@/lib/data";
 import {
