@@ -816,7 +816,7 @@ function AddEventDialog({ scenarioId, onCreate, onClose }: { scenarioId: string;
           </Select>
         </Field>
 
-        {kind !== "Transfer" && kind !== "Compensation" && (
+        {kind === "Hire" && (
           <Field label="Count">
             <Input type="number" min={1} value={count} onChange={(e) => setCount(Number(e.target.value))} />
           </Field>
