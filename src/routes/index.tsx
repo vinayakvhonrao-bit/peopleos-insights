@@ -109,52 +109,29 @@ function HomePage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Worklets */}
-        <section className="lg:col-span-2">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-foreground">Applications</h3>
-            <span className="text-xs text-muted-foreground">{WORKLETS.length} worklets</span>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {WORKLETS.map((w) => {
-              const Icon = w.icon;
-              return (
-                <Link
-                  key={w.to}
-                  to={w.to as never}
-                  className="group rounded-lg border border-border bg-card p-4 hover:shadow-md hover:-translate-y-0.5 transition-all"
-                >
-                  <div
-                    className="h-11 w-11 rounded-lg flex items-center justify-center text-white mb-3"
-                    style={{ background: w.color }}
-                  >
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div className="text-[13px] font-semibold text-foreground leading-tight">{w.label}</div>
-                  <div className="text-[11px] text-muted-foreground mt-1 leading-snug">{w.description}</div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Right column: Inbox + Announcements */}
-        <aside className="space-y-6">
-          <section className="rounded-lg border border-border bg-card">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        {/* Center: Inbox + Announcements */}
+        <section className="lg:col-span-2 space-y-6">
+          <div className="rounded-lg border border-border bg-card">
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-border">
               <div className="flex items-center gap-2">
                 <Inbox className="h-4 w-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold">Your Inbox</h3>
+                <h3 className="text-sm font-semibold">Awaiting Your Action</h3>
+                <span
+                  className="ml-1 text-[10px] font-semibold px-1.5 py-0.5 rounded"
+                  style={{ background: "var(--wd-orange)", color: "white" }}
+                >
+                  {tasks.filter((t) => t.status === "pending").length}
+                </span>
               </div>
               <Link to="/workflow" className="text-xs font-medium" style={{ color: "var(--primary)" }}>
-                View all
+                Go to My Tasks
               </Link>
             </div>
             <ul className="divide-y divide-border">
               {tasks.map((t, i) => {
                 const Icon = t.icon;
                 return (
-                  <li key={i} className="px-4 py-3 flex items-start gap-3">
+                  <li key={i} className="px-5 py-4 flex items-start gap-3 hover:bg-accent/40 transition-colors">
                     <Icon
                       className={`h-4 w-4 mt-0.5 ${t.status === "pending" ? "text-amber-600" : "text-emerald-600"}`}
                     />
@@ -162,19 +139,27 @@ function HomePage() {
                       <div className="text-[13px] font-medium text-foreground leading-snug">{t.label}</div>
                       <div className="text-[11px] text-muted-foreground mt-0.5">{t.who}</div>
                     </div>
+                    {t.status === "pending" && (
+                      <button
+                        className="text-[11px] font-medium px-2.5 h-7 rounded border border-border hover:bg-accent"
+                        style={{ color: "var(--primary)" }}
+                      >
+                        Review
+                      </button>
+                    )}
                   </li>
                 );
               })}
             </ul>
-          </section>
+          </div>
 
-          <section className="rounded-lg border border-border bg-card">
-            <div className="px-4 py-3 border-b border-border">
+          <div className="rounded-lg border border-border bg-card">
+            <div className="px-5 py-3.5 border-b border-border">
               <h3 className="text-sm font-semibold">Announcements</h3>
             </div>
             <ul className="divide-y divide-border">
               {announcements.map((a, i) => (
-                <li key={i} className="px-4 py-3">
+                <li key={i} className="px-5 py-3.5">
                   <div className="flex items-center gap-2">
                     <span
                       className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
@@ -188,9 +173,40 @@ function HomePage() {
                 </li>
               ))}
             </ul>
-          </section>
+          </div>
+        </section>
+
+        {/* Right: Applications */}
+        <aside>
+          <div className="rounded-lg border border-border bg-card">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <h3 className="text-sm font-semibold text-foreground">Applications</h3>
+              <span className="text-xs text-muted-foreground">{WORKLETS.length}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2 p-3">
+              {WORKLETS.map((w) => {
+                const Icon = w.icon;
+                return (
+                  <Link
+                    key={w.to}
+                    to={w.to as never}
+                    className="group rounded-md border border-border bg-card p-3 hover:shadow-sm hover:border-primary/40 transition-all flex flex-col items-start"
+                  >
+                    <div
+                      className="h-8 w-8 rounded-md flex items-center justify-center text-white mb-2"
+                      style={{ background: w.color }}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div className="text-[12px] font-semibold text-foreground leading-tight">{w.label}</div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
         </aside>
       </div>
+
     </AppShell>
   );
 }
