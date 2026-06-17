@@ -52,8 +52,9 @@ function HomePage() {
 
   // Pick a real HR employee as the signed-in user (deterministic, from generated roster)
   const hrUser =
-    EMPLOYEES.find((e) => e.jobTitle === "People Partner" && e.status === "Active") ??
+    EMPLOYEES.find((e) => e.jobProfile === "People Partner" && e.status === "Active") ??
     EMPLOYEES.find((e) => e.department === "G&A" && e.status === "Active");
+
   const greetingName = hrUser ? hrUser.firstName : "there";
 
   const announcements = [
