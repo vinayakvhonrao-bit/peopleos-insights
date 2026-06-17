@@ -47,6 +47,12 @@ function Dashboard() {
   }));
 
   const conservative = computeScenario(SCENARIOS[0]);
+  const growth = computeScenario(SCENARIOS[1]);
+  const projection = conservative.monthlyHeadcount.map((row, i) => ({
+    month: row.month,
+    conservative: row.headcount,
+    growth: growth.monthlyHeadcount[i]?.headcount ?? null,
+  }));
 
   return (
     <AppShell title="Executive Dashboard" subtitle="People Operations · IPO Readiness">
