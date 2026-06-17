@@ -61,7 +61,7 @@ const ROLE_ACTORS: Record<string, string> = {
   "Manager": "Reporting Manager",
   "Skip-Level Manager": "Priya Shah",
   "HR Business Partner": "Marcus Lee",
-  "People Operations": "Jordan Mehta",
+  "People Operations": "Iris Chen",
   "CFO": "Dana Park",
   "Payroll Partner": "Aiko Tanaka",
 };
