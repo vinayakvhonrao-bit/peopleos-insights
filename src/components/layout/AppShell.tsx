@@ -1,6 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  Home,
   LayoutDashboard,
   Users,
   TrendingUp,
@@ -16,17 +15,16 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 
-type NavItem = { to: string; label: string; icon: typeof Users; exact?: boolean };
+type NavItem = { to: string; label: string; icon: typeof Users };
 const NAV: NavItem[] = [
-  { to: "/", label: "Home", icon: Home, exact: true },
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/workforce", label: "Workforce", icon: Users },
-  { to: "/planning", label: "Planning", icon: TrendingUp },
-  { to: "/workflow", label: "Worker Changes", icon: GitBranch },
-  { to: "/payroll", label: "Payroll", icon: Calculator },
-  { to: "/insights", label: "AI Insights", icon: Sparkles },
   { to: "/setup", label: "Foundation Data", icon: Settings },
-  { to: "/about", label: "About", icon: FileText },
+  { to: "/workforce", label: "Workforce Explorer", icon: Users },
+  { to: "/dashboard", label: "Executive Dashboard", icon: LayoutDashboard },
+  { to: "/planning", label: "Workforce Planning", icon: TrendingUp },
+  { to: "/workflow", label: "Worker Data Change", icon: GitBranch },
+  { to: "/payroll", label: "Payroll Preview", icon: Calculator },
+  { to: "/insights", label: "AI Insights", icon: Sparkles },
+  { to: "/about", label: "About / Architecture", icon: FileText },
 ];
 
 export function AppShell({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
@@ -54,7 +52,7 @@ export function AppShell({ title, subtitle, children }: { title: string; subtitl
           </Link>
           <nav className="hidden lg:flex items-center gap-1">
             {NAV.map((item) => {
-              const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
+              const active = pathname.startsWith(item.to);
               return (
                 <Link
                   key={item.to}
