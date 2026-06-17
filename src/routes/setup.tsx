@@ -14,7 +14,7 @@ export const Route = createFileRoute("/setup")({
   component: SetupPage,
 });
 
-const ENTITIES: FDMEntity[] = ["departments", "locations", "jobProfiles", "costCenters", "compGrades"];
+const ENTITIES: FDMEntity[] = ["departments", "locations", "jobProfiles", "jobLevels", "positions", "costCenters", "compGrades", "payGroups"];
 
 function SetupPage() {
   const fdm = useFDM();
