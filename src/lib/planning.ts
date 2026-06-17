@@ -41,6 +41,7 @@ export interface TermEvent extends BaseEvent {
   level: Level;
   month: MonthLabel;
   count: number;
+  attritionPct?: number; // % of current dept headcount (input); count is derived
   attritionType: AttritionType;
   backfillMonth?: MonthLabel;
   exitingSalaryUSD: number;
