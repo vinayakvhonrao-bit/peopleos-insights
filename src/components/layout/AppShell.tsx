@@ -52,7 +52,7 @@ export function AppShell({ title, subtitle, children }: { title: string; subtitl
           </Link>
           <nav className="hidden lg:flex items-center gap-1">
             {NAV.map((item) => {
-              const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
+              const active = pathname.startsWith(item.to);
               return (
                 <Link
                   key={item.to}
