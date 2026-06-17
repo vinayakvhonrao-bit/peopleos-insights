@@ -722,6 +722,10 @@ function AddEventDialog({ scenarioId, onCreate, onClose }: { scenarioId: string;
   // Term-specific
   const [attrType, setAttrType] = useState<AttritionType>("Planned termination");
   const [backfillMonth, setBackfillMonth] = useState<MonthLabel>(MONTHS[5]);
+  const [attritionPct, setAttritionPct] = useState<number>(5);
+
+  const deptHC = EMPLOYEES.filter((e) => e.department === department).length;
+  const termCount = Math.max(1, Math.ceil((deptHC * attritionPct) / 100));
 
   // Transfer-specific
   const [toDept, setToDept] = useState<Department>("GPU Cloud");
