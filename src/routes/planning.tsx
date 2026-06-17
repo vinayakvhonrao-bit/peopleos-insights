@@ -746,8 +746,8 @@ function AddEventDialog({ scenarioId, onCreate, onClose }: { scenarioId: string;
       e = { ...baseFields, kind: "Hire", department, location, level, startMonth: month, count, annualSalaryUSD: salary };
     } else if (kind === "Termination") {
       e = {
-        ...baseFields, kind: "Termination", department, location, level, month, count,
-        attritionType: attrType, exitingSalaryUSD: salary,
+        ...baseFields, kind: "Termination", department, location, level, month, count: termCount,
+        attritionPct, attritionType: attrType, exitingSalaryUSD: salary,
         ...(attrType === "Backfill required" ? { backfillMonth } : {}),
       };
     } else if (kind === "Transfer") {
