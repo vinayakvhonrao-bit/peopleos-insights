@@ -2,7 +2,7 @@
 // Workday concept: Setup / Tenant Configuration. Persisted to localStorage.
 import { useSyncExternalStore } from "react";
 
-export type FDMEntity = "departments" | "locations" | "jobProfiles" | "costCenters" | "compGrades";
+export type FDMEntity = "departments" | "locations" | "jobProfiles" | "costCenters" | "compGrades" | "payGroups" | "positions" | "jobLevels";
 
 export interface FDMRow {
   id: string;
@@ -19,6 +19,9 @@ export interface FDMState {
   jobProfiles: FDMRow[];
   costCenters: FDMRow[];
   compGrades: FDMRow[];
+  payGroups: FDMRow[];
+  positions: FDMRow[];
+  jobLevels: FDMRow[];
 }
 
 const STORAGE_KEY = "neocloud.fdm.v1";
