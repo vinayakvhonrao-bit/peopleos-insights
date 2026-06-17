@@ -210,18 +210,6 @@ export const ENTITY_META: Record<FDMEntity, {
       { key: "payDays", label: "Pay Days", placeholder: "15th & last" },
     ],
   },
-  positions: {
-    label: "Positions",
-    singular: "Position",
-    workdayObject: "Position (Position Management)",
-    attributeFields: [
-      { key: "jobProfile", label: "Job Profile", placeholder: "STAFF" },
-      { key: "department", label: "Department", placeholder: "ENG" },
-      { key: "location", label: "Location", placeholder: "SF" },
-      { key: "headcount", label: "Headcount", placeholder: "1" },
-      { key: "status", label: "Status", placeholder: "Filled / Open / Frozen" },
-    ],
-  },
   jobLevels: {
     label: "Job Levels",
     singular: "Job Level",
