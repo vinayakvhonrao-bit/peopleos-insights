@@ -164,14 +164,18 @@ function Dashboard() {
           </div>
         </SectionCard>
 
-        <SectionCard title="IPO Readiness Notes" description="Curated indicators reviewed weekly">
-          <ul className="text-sm space-y-2.5 text-foreground">
-            <li className="flex justify-between gap-4 border-b border-border pb-2"><span className="text-muted-foreground">Compensation bands reviewed</span><span className="font-medium">Q1 2026 ✓</span></li>
-            <li className="flex justify-between gap-4 border-b border-border pb-2"><span className="text-muted-foreground">SOX Payroll controls in place</span><span className="font-medium">Yes — Audit log live</span></li>
-            <li className="flex justify-between gap-4 border-b border-border pb-2"><span className="text-muted-foreground">Workday migration cutover</span><span className="font-medium">Target 2026-12-01</span></li>
-            <li className="flex justify-between gap-4 border-b border-border pb-2"><span className="text-muted-foreground">Pending data quality issues</span><span className="font-medium text-amber-700">{anomalies} flagged</span></li>
-            <li className="flex justify-between gap-4"><span className="text-muted-foreground">International payroll providers</span><span className="font-medium">3 in production</span></li>
-          </ul>
+        <SectionCard title="Open Requisitions by Department" description="Approved headcount not yet filled">
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={reqsByDept} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
+                <CartesianGrid stroke="#eef2f6" vertical={false} />
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#94a3b8" />
+                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="count" fill="#1e3a5f" radius={[2,2,0,0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </SectionCard>
       </div>
     </AppShell>
