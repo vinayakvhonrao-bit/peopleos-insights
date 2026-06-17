@@ -50,6 +50,13 @@ function HomePage() {
   const anomalies = PAYROLL.filter((r) => r.anomaly).length;
   const runRate = monthlyRunRate();
 
+  // Pick a real HR employee as the signed-in user (deterministic, from generated roster)
+  const hrUser =
+    EMPLOYEES.find((e) => e.jobProfile === "People Partner" && e.status === "Active") ??
+    EMPLOYEES.find((e) => e.department === "G&A" && e.status === "Active");
+
+  const greetingName = hrUser ? hrUser.firstName : "there";
+
   const announcements = [
     { tag: "Comp", title: "FY26 merit cycle planning kickoff", date: "Jun 18" },
     { tag: "Payroll", title: "International payroll cutover window", date: "Jun 22" },
@@ -63,7 +70,8 @@ function HomePage() {
   ];
 
   return (
-    <AppShell title="Welcome back, Jordan" subtitle="Home">
+    <AppShell title={`Welcome back, ${greetingName}`} subtitle="Home">
+
       {/* Hero banner */}
       <div
         className="rounded-xl p-7 mb-6 text-white relative overflow-hidden"
